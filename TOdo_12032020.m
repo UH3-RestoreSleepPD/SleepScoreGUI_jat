@@ -8,9 +8,9 @@
 
 %% MICHAEL suggestions
 
-% 1. Key commands for advancing EPOCHS [arrows]
-% 2. Key commands for entering SLEEP SCORES [ 1, 2, 3, R, W]
-% 3. Change 'A' to 'W'
+% DONE 1. Key commands for advancing EPOCHS [arrows]
+% DONE 2. Key commands for entering SLEEP SCORES [ 1, 2, 3, R, W]
+% DONE 3. Change 'A' to 'W'
 % 4. Zoom - #3 above
 % 4AA
 %          If I’ve selected anything other than 30, 
