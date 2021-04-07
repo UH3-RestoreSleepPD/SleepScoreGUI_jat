@@ -1,4 +1,4 @@
-%% Load
+man %% Load
 cd('C:\Users\John\Desktop\sleepQCcheck\samplechck')
 
 raw = 'C:\Users\John\Desktop\sleepQCcheck\samplechck';
