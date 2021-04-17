@@ -1,5 +1,10 @@
 function [] = convertTT2EDF(inputTable , saveDIR , saveName)
 
+% saveloc = 'G:\01 Coding Datasets\SLEEP_SCORE_EDF\A1_UNMC_02_EDF'
+% saveName = '2_UNMC_2.edf';
+% convertTT2EDF(TT , saveloc , saveName)
+
+
 TT = inputTable;
 
 fs = 100;
