@@ -1,8 +1,8 @@
 %% Load
-cd('G:\01 Coding Datasets\SLEEP_SCORE_EDF\RAW_UNMC_03_N2\old')
+cd('C:\Users\John\Downloads\Raw AO-selected_ALL\night3\oldMAT')
 
-raw = 'G:\01 Coding Datasets\SLEEP_SCORE_EDF\RAW_UNMC_03_N2\old';
-new = 'G:\01 Coding Datasets\SLEEP_SCORE_EDF\RAW_UNMC_03_N2\new';
+raw = 'C:\Users\John\Downloads\Raw AO-selected_ALL\night3\oldMAT';
+new = 'C:\Users\John\Downloads\Raw AO-selected_ALL\night3\newMAT';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};
