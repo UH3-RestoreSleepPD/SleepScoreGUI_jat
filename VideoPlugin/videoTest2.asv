@@ -1,66 +1,25 @@
-%% CD to video folder
-cd('D:\01 Coding Datasets\SLEEP VIDEO\UNMC2_N1')
+%% NEED TO ADD TTL START
+load('F210219-0001.mat');
+numSecsTS = CDIG_IN_1_Down/44000;
+numSampsTS = CDIG_IN_1_Down;
 
-
-%% Load video file in
-
-v3 = VideoReader('3_UNMC_1.mp4');
-
-%%
-
-currAxes = axes;
-while hasFrame(v3)
-    vidFrame = readFrame(v3);
-    image(vidFrame, 'Parent', currAxes);
-    currAxes.Visible = 'off';
-    pause(1/7);
+if numSecsTS < 30
+    % remove first epoch
+    
 end
-
-%%
 
 %% CD to video folder
 cd('D:\01_Coding_Datasets\SLEEP VIDEO\UNMC2_N1')
 
-
 %% Load video file in
+tic
 v3 = VideoReader('3_UNMC_1.mp4');
-
-
-%%
-
-vidWidth = v3.Width;
-vidHeight = v3.Height;
-
-mov = struct('cdata',zeros(vidHeight,vidWidth,3,'uint8'),...
-    'colormap','gray');
-
-%%
-
-k = 1;
-while hasFrame(v3)
-    mov(k).cdata = readFrame(v3);
-    k = k+1;
-    disp([num2str(k) ' out of ' num2str(v3.NumFrames)])
-end
-
-%%
-currAxes = axes;
-for i = 1
-    vidFrame = readFrame(v3 , 'Grayscale');
-    image(vidFrame, 'Parent', currAxes);
-    currAxes.Visible = 'off';
-    pause(1/7);
-    %     text(1,100,['This is frame ', num2str(i)],'FontSize',40)
-end
-
-
-
-
-
+toc
 %% Numbers
-
 % Number of frames
+tic
 numF = v3.NumFrames;
+toc
 % Frame rate
 fr = 7;
 % Number of frames per 30 second bin
@@ -69,34 +28,50 @@ fepoch = fr*30;
 numSecs = v3.NumFrames/fr;
 numBins = ceil(numF/fepoch);
 % Cell array at number of bins with 3D matrices with image sets gray
+binSTOP = numBins - 1;
+maxWoBin = fepoch*binSTOP;
 
-%% Load temp frame
-vidFrame = read(v3,f);
+startS = transpose(1:fepoch:maxWoBin);
+stopS = [startS(2:end) - 1 ; maxWoBin];
+allVinds = [startS , stopS];
+allVinds(end+1,1) = allVinds(end,2) + 1;
+allVinds(end,2) = numF;
+app.VidINDs = allVinds;
 
-%% Edit frame
-close
-currAxes = axes;
-bwVF = im2gray(vidFrame);
-Jtest = imresize(bwVF, 0.5);
-image(Jtest);
-colormap('gray')
-currAxes.Visible = 'off';
 
 %% Test Epoch structure - 30 seconds = 210 frames
-
+vidWidth = v3.Width;
+vidHeight = v3.Height;
 
 mov = struct('cdata',zeros(round(vidHeight/2),round(vidWidth/2),1,'uint8'),...
     'colormap','gray');
 
-kki = 1210:1420;
+start = 1;
+stop = fepoch;
+stepSize = fepoch;
 
-for k = 1:210
-    tmpF = read(v3,kki(k));
-    bwtmp = im2gray(tmpF);
-    reStmp = imresize(bwtmp, 0.5);
-    mov(k).cdata = reStmp;
+for en = 1:20 % loop through bins
     
-    disp([num2str(k) ' out of ' num2str(v3.NumFrames)])
+    disp(['frame ', num2str(en), ' out of ', num2str(numBins)])
+    tic
+    tmpFrames = read(v3,[start stop]);
+    
+    for k = 1:size(tmpFrames,4)
+        tmpF = tmpFrames(:,:,:,k);
+        bwtmp = im2gray(tmpF);
+        reStmp = imresize(bwtmp, 0.5);
+        mov(k).cdata = reStmp;
+        
+        disp([num2str(k) ' out of ' num2str(v3.NumFrames)])
+    end
+    
+    saveLoc = ['D:\01_Coding_Datasets\SLEEP VIDEO\UNMC2_N1\VideoEpochMat\',...
+        'epoch_',num2str(en),'.mat'];
+    save(saveLoc,'mov');
+    toc
+    start = stop + 1;
+    stop = start + stepSize - 1;
+    
 end
 
 
@@ -136,24 +111,6 @@ allVinds(end+1,1) = allVinds(end,2) + 1;
 allVinds(end,2) = numF;
 app.VidINDs = allVinds;
 
-% function for processing
-% function [vidEpoch] = grabVidEpoch(app,epoch)
-%
-% vidEpoch = zeros(app.Fwidth,app.Fheight,app.fepoch,'uint8');
-%
-% startF = app.VidINDs(epoch,1);
-% stopF = app.VidINDs(epoch,2);
-%
-% tmpFrames = read(v3,[startF stopF]);
-%
-% for ti = 1:app.fepoch
-%
-%     ttFrm = im2gray(tmpFrames(:,:,:,ti));
-%     vidEpoch(:,:,ti) = ttFrm;
-%
-% end
-%
-% end
 
 
 %%

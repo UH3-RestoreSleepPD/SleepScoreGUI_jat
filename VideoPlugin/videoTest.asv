@@ -88,7 +88,7 @@ currAxes.Visible = 'off';
 mov = struct('cdata',zeros(round(vidHeight/2),round(vidWidth/2),1,'uint8'),...
     'colormap','gray');
 
-kki = 1210:1420;
+kki = 210:420;
 
 for k = 1:210
     tmpF = read(v3,kki(k));
@@ -104,10 +104,9 @@ end
 
 currAxes = axes;
 for i = 1:length(mov)
-%     image(mov(i).cdata);
-    image(mov(i).cdata, 'Parent', currAxes);
+    image(vidFrame, 'Parent', currAxes);
     currAxes.Visible = 'off';
-    colormap('gray')
+    image(mov(i).cdata);
     pause(1/7)
 end
 
