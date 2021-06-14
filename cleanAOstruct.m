@@ -1,8 +1,8 @@
 %% Load
-cd('C:\Users\John\Downloads\Raw AO-selected_ALL\night3\oldMAT')
+cd('C:\Users\johna\Desktop\UNMC_S2_N1_test\Old_Mat')
 
-raw = 'C:\Users\John\Downloads\Raw AO-selected_ALL\night3\oldMAT';
-new = 'C:\Users\John\Downloads\Raw AO-selected_ALL\night3\newMAT';
+raw = 'C:\Users\johna\Desktop\UNMC_S2_N1_test\Old_Mat';
+new = 'C:\Users\johna\Desktop\UNMC_S2_N1_test\New_Mat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};
@@ -14,10 +14,10 @@ fileLIST = mdir2;
 
 
 for fi = 1:length(fileLIST)
-
+    cd(raw)
     matob = matfile(fileLIST{fi});
     varlist = who(matob);
-    chanlist = varlist(~contains(varlist,{'SF','Ports','CADD','Channel','CANALOG'}));
+    chanlist = varlist(~contains(varlist,{'SF','Ports','CADD','Channel','CANALOG','new','raw','fileLIST'}));
     
     cd(raw)
     load(fileLIST{fi},chanlist{:});
@@ -30,44 +30,44 @@ end
 
 %% Check ttl
 
-new = 'C:\Users\John\Desktop\sleepQCcheck\samplechck2';
-cd(new)
-mdir = dir('*.mat');
-mdir2 = {mdir.name};
-fileLIST = mdir2;
-
-ttlC = cell(1,length(fileLIST))
-ttlA = cell(1,length(fileLIST))
-for fi = 1:length(fileLIST)
-    
-    
-    matob = matfile(fileLIST{fi});
-    varlist = who(matob);
-    chanlist = varlist(contains(varlist,{'CDIG'}));
-    
-    if isempty(chanlist)
-       
-        continue
-        
-    else
-        
-        load(fileLIST{fi},'CDIG_IN_1_Up');
-        
-        ttlA{fi} = CDIG_IN_1_Up;
-        
-        dt  = diff(CDIG_IN_1_Up / 44000);
-        
-        
-        ttlC{fi} = dt;
-        
-        clearvars CDIG_IN_1_Up
-    end
-    
-    
-    
-    
-    
-    
-    
-end
+% new = 'C:\Users\John\Desktop\sleepQCcheck\samplechck2';
+% cd(new)
+% mdir = dir('*.mat');
+% mdir2 = {mdir.name};
+% fileLIST = mdir2;
+% 
+% ttlC = cell(1,length(fileLIST))
+% ttlA = cell(1,length(fileLIST))
+% for fi = 1:length(fileLIST)
+%     
+%     
+%     matob = matfile(fileLIST{fi});
+%     varlist = who(matob);
+%     chanlist = varlist(contains(varlist,{'CDIG'}));
+%     
+%     if isempty(chanlist)
+%        
+%         continue
+%         
+%     else
+%         
+%         load(fileLIST{fi},'CDIG_IN_1_Up');
+%         
+%         ttlA{fi} = CDIG_IN_1_Up;
+%         
+%         dt  = diff(CDIG_IN_1_Up / 44000);
+%         
+%         
+%         ttlC{fi} = dt;
+%         
+%         clearvars CDIG_IN_1_Up
+%     end
+%     
+%     
+%     
+%     
+%     
+%     
+%     
+% end
 
