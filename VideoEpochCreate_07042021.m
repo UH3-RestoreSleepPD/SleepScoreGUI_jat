@@ -11,7 +11,10 @@ saveLOC = uigetdir();
 % cd('D:\01_Coding_Datasets\SLEEP VIDEO\UNMC2_N1')
 
 %% Load video file in
-v3 = VideoReader('3_UNMC_1.mp4');
+mp4D = dir('*.mp4');
+mp4Df = {mp4D.name};
+
+v3 = VideoReader(mp4Df{1});
 %% Numbers
 % Number of frames
 numF = v3.NumFrames;

@@ -1,4 +1,4 @@
-function [outputVideo] = concatVIDs(vidLOC)
+function [] = concatVIDs(vidLOC)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
