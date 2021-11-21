@@ -1,25 +1,25 @@
-function [] = VideoEpochCreate_07042021()
+function [] = VideoEpochCreate_07042021(locDIR , saveLOC , frameR)
 
-%% CD to video folder
+% CD to video folder
 
-locDIR = uigetdir();
+% locDIR = uigetdir();
 
 cd(locDIR)
 
-saveLOC = uigetdir();
+% saveLOC = uigetdir();
 
 % cd('D:\01_Coding_Datasets\SLEEP VIDEO\UNMC2_N1')
 
-%% Load video file in
+% Load video file in
 mp4D = dir('*.mp4');
 mp4Df = {mp4D.name};
 
 v3 = VideoReader(mp4Df{1});
-%% Numbers
+% Numbers
 % Number of frames
 numF = v3.NumFrames;
 % Frame rate
-fr = 7;
+fr = frameR;
 % Number of frames per 30 second bin
 fepoch = fr*30;
 % Total Number of 30 second bins

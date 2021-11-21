@@ -27,6 +27,7 @@ for vi = 1:length(vidDir2)
         % record new video
         writeVideo(outputVideo, imgt);
         disp(['Frame ', num2str(tframe), ' of out ' , num2str(numFrames)])
+        disp(['Video file ',num2str(vi),' of ' ,num2str(length(vidDir2))])
         tframe = tframe + 1;
     end
     disp(['Video file ',num2str(vi),' of ' ,num2str(length(vidDir2)), ' done'])
@@ -54,6 +55,13 @@ end
 % end
 close(outputVideo);
 
+oldLOC =  [vidLOC , filesep , outputVideo];
+saveDIR = [vidLOC , filesep , 'FullNight'];
+if ~exist(saveDIR, 'dir')
+    mkdir(saveDIR)
+end
+newLOC =  [saveDIR , filesep , outputVideo];
+movefile(oldLOC , newLOC)
 
 
 
