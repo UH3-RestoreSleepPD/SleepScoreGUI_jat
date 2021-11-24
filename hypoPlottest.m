@@ -1,3 +1,7 @@
+cd('I:\01_Coding_Datasets\TEST_FILE_sleep');
+load("TEST_Sleep.mat",'TT');
+scoreD = TT(:,{'LW','ST','CK','MS'});
+%%
 
 disLog = false(height(scoreD),1);
 for s = 1:height(scoreD)
@@ -41,6 +45,8 @@ end
 
 %%
 xAx = 1:height(scoreD);
+
+%%
 % Plot agreed upon points
 scatter(xAx, plotNUMs(:,1), 20, 'MarkerFaceColor','none','MarkerEdgeColor',...
     [0.5 0.5 0.5],'MarkerFaceAlpha',.2,'MarkerEdgeAlpha',.2)
@@ -97,7 +103,21 @@ scatter(xAx, plotNUMs(:,5), 20, 'MarkerFaceColor','none','MarkerEdgeColor',...
 
 
 
+%% Line plot
+sleePids = {'W','N1','N2','N3','R'};
+plotNUMsL = nan(height(scoreD),4);
+allScores = table2cell(scoreD);
+for pi = 1:size(plotNUMsL,2)
+    for si = 1:length(sleePids)
 
+        logLoc = ismember(allScores(:,pi),sleePids{si});
+        plotNUMsL(logLoc,pi) = si;
 
+    end
+end
 
-
+cOlOrs = 'rgbk';
+hold on
+for iL = 1:4
+    plot(xAx,plotNUMsL(:,iL),"Color",cOlOrs(iL))
+end
