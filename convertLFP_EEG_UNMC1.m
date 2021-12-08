@@ -1,0 +1,481 @@
+% % Info for UNMC 1 only
+% 1 – F3
+% 2 – Fz
+% 3 – Depth 0 (black)
+% 4 – A1 (M1)
+% 5 – C3
+% 6 – Cz
+% 7 – Depth 1 (red)
+% 8 – A2  (M2)
+% 9 – O1
+% 10 – Depth 2 (yellow)
+% 11 – EOG1
+% 12 – EOG2
+% 13 – Chin1
+% 14 – Chin2
+% 15 - ChinZ
+% 16 – Depth 3 (yellow)
+
+app.fileLOC = uigetdir();
+
+cd(app.fileLOC)
+
+mdir = dir('*.mat');
+mdir2 = {mdir.name};
+app.fileLIST = mdir2;
+
+% Use Matfile function to import the appropriate files
+matob = matfile(app.fileLIST{1});
+app.varlist = who(matob);
+
+% DETERIME ID for EEG , EOG , EMG -----------------------------
+chanLab = {'EEG','EEG','EEG','EEG','EEG',...
+    'EEG','EEG','EOG','EOG','EMG','EMG','EMG'};
+chanID = {'F3','Fz','A1','C3','Cz','A2','O1',...
+    'EOG1','EOG2','Chin1','Chin2','ChinZ'};
+aoID = {'F3','Fz','A1','C3','Cz','A2','O1',...
+    '11','12','13','14','15'};
+
+app.labelTab = table(transpose(aoID),transpose(chanLab),...
+    transpose(chanID),'VariableNames',{'AO_ID',...
+    'Label','ID'});
+
+% Convert to Time tables with appropriate sample frequencies
+app.chansleep = {'EEG','EOG','EMG'};
+app.chanNUMb = zeros(1,3);
+for cNi = 1:length(app.chansleep)
+    app.chanNUMb(cNi) = sum(ismember(app.labelTab.Label,app.chansleep{cNi}));
+end
+
+app.eegMODsf = 1375;
+
+
+% DETERMINE ID for LFP ----------------------------------------
+chanLab_LFP = {'DBS','DBS','DBS','DBS'};
+chanID_LFP = {'0','1','2','3'};
+aoID_LFP = {'03','07','10','16'};
+
+app.labelTab_LFP = table(transpose(aoID_LFP),transpose(chanLab_LFP),...
+    transpose(chanID_LFP),'VariableNames',{'AO_ID',...
+    'Label','ID'});
+
+% Convert to Time tables with appropriate sample frequencies
+app.chansleep_LFP = {'DBS'};
+app.chanNUMb_LFP = zeros(1,1);
+for cNi = 1:length(app.chansleep_LFP)
+    app.chanNUMb_LFP(cNi) = sum(ismember(app.labelTab_LFP.Label,app.chansleep_LFP{cNi}));
+end
+
+app.lfpMODsf = 1375;
+
+app.INFOLabel.Text = "File LOADED";
+
+fileLOCparts = strsplit(app.fileLOC,'\');
+foldName = fileLOCparts{end};
+app.datE.Text = foldName;
+
+tmpEEGarray = zeros(60*60*14*app.eegMODsf,app.chanNUMb(1)); % 14 Hours
+tmpEOGarray = zeros(60*60*14*app.eegMODsf,app.chanNUMb(2)); % 14 Hours
+tmpEMGarray = zeros(60*60*14*app.eegMODsf,app.chanNUMb(3)); % 14 Hours
+
+chanTabLabs = cell(1,3);
+aoTabLabs = cell(1,3);
+
+tmpLFParray = zeros(60*60*14*app.lfpMODsf,app.chanNUMb_LFP(1)); % 14 Hours
+chanTabLabs_LFP = cell(1,1);
+aoTabLabs_LFP = cell(1,1);
+
+for fi = 1:length(app.fileLIST)
+
+    % Update progress, report current estimate
+    %     progBAR.Value = fi/length(app.fileLIST);
+    %     progBAR.Message = sprintf('%1.0f',fi);
+
+    % file name
+    curFile = app.fileLIST{fi};
+    % Load all channels [MAY NEED TO UPDATE with MICRODRIVE]
+    load(curFile,app.varlist{:});
+
+    for ci = 1:length(app.chansleep)
+
+        chanChoose = app.chansleep{ci};
+        chanTabLabs{ci} = app.labelTab.ID(ismember(app.labelTab.Label,chanChoose));
+        aoTabLabs{ci} = app.labelTab.AO_ID(ismember(app.labelTab.Label,chanChoose));
+
+        % Extract variables relevant to channel
+        % Raw data and sampling frequency
+        % Get channel list
+        for chi = 1:length(aoTabLabs{ci})
+
+            tmpChan = aoTabLabs{ci}(ismember(aoTabLabs{ci},aoTabLabs{ci}(chi)));
+            tmpRows = app.varlist(contains(app.varlist,tmpChan));
+            rawRow = tmpRows{1};
+
+            chanNums = 1:length(chanTabLabs{ci});
+
+            dat1 = transpose(eval(rawRow));
+            switch chanChoose
+                case 'EEG'
+                    %                     progBAR.Title = 'EEG Data...';
+
+                    lastLOC = find(tmpEEGarray(:,length(chanNums)),1,'last');
+
+                    if isempty(lastLOC)
+                        lastLOC = 0 + 1;
+                    else
+                        lastLOC = lastLOC + 1;
+                    end
+
+                    % trim off sample points prior to TTL
+                    if fi == 1
+
+                        timeOFFset = CDIG_IN_1_TimeBegin - CEEG_2___03___EEG_2___03_TimeBegin;
+                        ttLSamp = round(timeOFFset*1375);
+                        dat1 = dat1(ttLSamp:numel(dat1));
+
+                    end
+
+                    curLeng = length(dat1)-1;
+                    tmpEEGarray(lastLOC:lastLOC+curLeng ,chi) = dat1;
+
+                case 'EOG'
+                    %                     progBAR.Title = 'EOG Data...';
+
+                    lastLOC = find(tmpEOGarray(:,length(chanNums)),1,'last');
+
+                    if isempty(lastLOC)
+                        lastLOC = 0 + 1;
+                    else
+                        lastLOC = lastLOC + 1;
+                    end
+
+                    % trim off sample points prior to TTL
+                    if fi == 1
+
+                        timeOFFset = CDIG_IN_1_TimeBegin - CEEG_2___03___EEG_2___03_TimeBegin;
+                        ttLSamp = round(timeOFFset*1375);
+                        dat1 = dat1(ttLSamp:numel(dat1));
+
+                    end
+
+                    curLeng = length(dat1)-1;
+                    tmpEOGarray(lastLOC:lastLOC+curLeng ,chi) = dat1;
+
+                case 'EMG'
+                    %                     progBAR.Title = 'EMG Data...';
+
+                    lastLOC = find(tmpEMGarray(:,length(chanNums)),1,'last');
+
+                    if isempty(lastLOC)
+                        lastLOC = 0 + 1;
+                    else
+                        lastLOC = lastLOC + 1;
+                    end
+
+                    % trim off sample points prior to TTL
+                    if fi == 1
+
+                        timeOFFset = CDIG_IN_1_TimeBegin - CEEG_2___03___EEG_2___03_TimeBegin;
+                        ttLSamp = round(timeOFFset*1375);
+                        dat1 = dat1(ttLSamp:numel(dat1));
+
+                    end
+
+                    curLeng = length(dat1)-1;
+                    tmpEMGarray(lastLOC:lastLOC+curLeng ,chi) = dat1;
+
+            end
+        end
+    end
+    clear(app.varlist{:})
+end
+
+
+% LFP Processing
+for fi = 1:length(app.fileLIST)
+    % Update progress, report current estimate
+    %     progBAR.Value = fi/length(app.fileLIST);
+    %     progBAR.Message = sprintf('%1.0f',fi);
+    %     progBAR.Title = 'LFP Data...';
+    % file name
+    curFile = app.fileLIST{fi};
+    % Load all channels
+    load(curFile,app.varlist{:});
+
+    for ci = 1:length(app.chansleep_LFP)
+
+        chanChooselfp = app.chansleep_LFP{ci};
+        chanTabLabs_LFP{ci} = app.labelTab_LFP.ID(ismember(app.labelTab_LFP.Label,chanChooselfp));
+        aoTabLabs_LFP{ci} = app.labelTab_LFP.AO_ID(ismember(app.labelTab_LFP.Label,chanChooselfp));
+
+        for chi = 1:length(aoTabLabs_LFP{ci})
+
+            tmpChanlfp = aoTabLabs_LFP{ci}(ismember(aoTabLabs_LFP{ci},aoTabLabs_LFP{ci}(chi)));
+            tmpRowslfp = app.varlist(contains(app.varlist,tmpChanlfp));
+            rawRowlfp = tmpRowslfp{1};
+
+            chanNumslfp = 1:length(chanTabLabs_LFP{ci});
+
+            lfptemp = transpose(eval(rawRowlfp));
+
+            lastLOClfp = find(tmpLFParray(:,length(chanNumslfp)),1,'last');
+
+            if isempty(lastLOClfp)
+                lastLOClfp = 0 + 1;
+            else
+                lastLOClfp = lastLOClfp + 1;
+            end
+
+            % trim off sample points prior to TTL
+            if fi == 1
+
+                timeOFFset = CDIG_IN_1_TimeBegin - CEEG_2___03___EEG_2___03_TimeBegin;
+                ttLSamp = round(timeOFFset*1375);
+                lfptemp = lfptemp(ttLSamp:numel(lfptemp));
+
+            end
+
+            curLeng = length(lfptemp)-1;
+            tmpLFParray(lastLOClfp:lastLOClfp+curLeng ,chi) = lfptemp;
+
+
+        end
+    end
+end
+
+% Clean up array EEG
+lastZEEG = find(tmpEEGarray(:,1),1,'last') + 1;
+tmpEEGarray = tmpEEGarray(1:lastZEEG,:);
+
+% Clean up array EOG
+lastZEOG = find(tmpEOGarray(:,1),1,'last') + 1;
+tmpEOGarray = tmpEOGarray(1:lastZEOG,:);
+
+% Clean up array EMG
+lastZEMG = find(tmpEMGarray(:,1),1,'last') + 1;
+tmpEMGarray = tmpEMGarray(1:lastZEMG,:);
+
+% Clean up array LFP
+lastZLFP = find(tmpLFParray(:,1),1,'last') + 1;
+tmpLFParray = tmpLFParray(1:lastZLFP,:);
+
+% Clean up done
+disp('Clean up done!')
+
+
+
+%%
+
+tmpEEGtab = array2table(tmpEEGarray);
+tmpEEGtab.Properties.VariableNames = chanTabLabs{1};
+app.eegTTraw = table2timetable(tmpEEGtab,'SampleRate',app.eegMODsf);
+app.eegProc = app.eegTTraw;
+
+hourS = ceil((size(app.eegTTraw,1)/1375)/60/60);
+
+stHR = 0;
+enHR = 3599;
+for hi = 1:hourS
+
+    tmTR = timerange(seconds(stHR),seconds(enHR));
+
+    tmpEEGhblk = app.eegTTraw(tmTR,:);
+
+    tmTR2 = timerange(tmpEEGhblk.Time(1),tmpEEGhblk.Time(end) + seconds(1));
+
+    % Normalize
+    disp(['Normalize Hour ' , num2str(hi)]);
+    eegTTrawN = normalize(tmpEEGhblk);
+    % Band Stop notch
+    disp(['Notch Filter Hour ' , num2str(hi)]);
+    eegNOTCH = bandstop(eegTTrawN,[59 61]);
+    % Low Filter
+    disp(['Low Pass Filter Hour ' , num2str(hi)]);
+    eegTTppLp = lowpass(eegNOTCH,35);
+    % High Filter
+    disp(['High Pass Filter Hour ' num2str(hi)]);
+    eegTTppHp = highpass(eegTTppLp,0.3);
+
+
+    eegTTppSm = eegTTppHp;
+
+
+    if height(tmpEEGhblk) < 4948000
+        app.eegProc(tmTR2,:) = eegTTppSm;
+    else
+        app.eegProc(tmTR,:) = eegTTppSm;
+    end
+
+    stHR = enHR + 1;
+    enHR = stHR + 3599;
+
+    beep
+
+end
+
+
+%%
+
+% Downsample
+disp('Downsample 100Hz');
+eegTTppDs = retime(app.eegProc,'regular','mean','SampleRate',100);
+% Preprocess Signal
+app.eegTTpp = eegTTppDs;
+
+% EOG ********************************************************
+
+tmpEOGtab = array2table(tmpEOGarray);
+tmpEOGtab.Properties.VariableNames = chanTabLabs{2};
+app.eogTTraw = table2timetable(tmpEOGtab,'SampleRate',app.eegMODsf);
+
+% Normalize
+disp('Normalize');
+eogTTrawN = normalize(app.eogTTraw);
+% Band Stop notch
+disp('Notch Filter');
+eogNOTCH = bandstop(eogTTrawN,[59 61]);
+% Low Filter
+disp('Low Pass Filter');
+eogTTppLp = lowpass(eogNOTCH,35);
+% High Filter
+disp('High Pass Filter');
+eogTTppHp = highpass(eogTTppLp,0.3);
+eogTTppSm = eogTTppHp;
+% Downsample
+disp('Downsample 100Hz');
+eogTTppDs = retime(eogTTppSm,'regular','mean','SampleRate',100);
+% Preprocess Signal
+app.eogTTpp = eogTTppDs;
+
+
+%%
+
+tmpEMGtab = array2table(tmpEMGarray);
+tmpEMGtab.Properties.VariableNames = chanTabLabs{3};
+app.emgTTraw = table2timetable(tmpEMGtab,'SampleRate',app.eegMODsf);
+
+% Normalize
+disp('Normalize');
+emgTTrawN = normalize(app.emgTTraw);
+% Band Stop notch
+disp('Notch Filter');
+emgNOTCH = bandstop(emgTTrawN,[59 61]);
+% Low Filter
+disp('Low Pass Filter');
+emgTTppLp = lowpass(emgNOTCH,100);
+% High Filter
+disp('High Pass Filter');
+emgTTppHp = highpass(emgTTppLp,10);
+emgTTppSm = emgTTppHp;
+% Downsample
+disp('Downsample 100Hz');
+emgTTppDs = retime(emgTTppSm,'regular','mean','SampleRate',100);
+% Preprocess Signal
+app.emgTTpp = emgTTppDs;
+
+%%
+
+tmpLFPtab = array2table(tmpLFParray);
+tmpLFPtab.Properties.VariableNames = chanTabLabs_LFP{1};
+app.lfpTTraw = table2timetable(tmpLFPtab,'SampleRate',app.lfpMODsf);
+
+disp('Notch Filter');
+lfpNOTCH = app.lfpTTraw;
+for li = 1:size(app.lfpTTraw,2)
+    tmpLFPraw = table2array(app.lfpTTraw(:,li));
+    tmpLFPnotch = spectrumInterpolation(tmpLFPraw, app.lfpMODsf, 60, 3, 1);
+    tmpLFPntab = array2table(tmpLFPnotch);
+    lfpNOTCH(:,li) = tmpLFPntab;
+end
+% Low Filter
+disp('Low Pass Filter');
+lfpTTppLp = lowpass(lfpNOTCH,250);
+% High Filter
+disp('High Pass Filter');
+lfpTTppHp = highpass(lfpTTppLp,0.2);
+lfpTTppHpOnly = highpass(lfpNOTCH,0.2);
+lfpTTppSm = lfpTTppHp;
+% Downsample
+% CREATE RC+S version
+% CREATE RAW version - no downsampling
+lfpPB.Message = sprintf('%s','Downsample 250Hz');
+lfpTTppDs = retime(lfpTTppSm,'regular','mean','SampleRate',250);
+% Preprocess Signal
+app.lfpTTpp = lfpTTppDs;
+app.lfpTTNdnS = lfpTTppHpOnly;
+
+%%
+
+% Create FINAL Timetables -------------------------------------         
+eegTABf = createBinsNonGUI(app,'eeg',chanTabLabs{1},100);
+%%
+eogTABf = createBinsNonGUI(app,'eog',chanTabLabs{2},100);
+emgTABf = createBinsNonGUI(app,'emg',chanTabLabs{3},100);
+
+%%
+
+lfpTABf = createBinsNonGUI(app,'lfp',chanTabLabs_LFP{1},250);
+
+%%
+lfpTABfND = createBinsNonGUI(app,'lfpr',chanTabLabs_LFP{1},1375);
+disp('Done!')
+
+%%
+
+% Create FINAL EEG/EOG/EMG Timetables -------------------------
+TT = [eegTABf,eogTABf,emgTABf];
+% Add Sleep Score raters
+TT.LW = repmat({''},height(TT),1);
+TT.CK = repmat({''},height(TT),1);
+TT.ST = repmat({''},height(TT),1);
+TT.MS = repmat({''},height(TT),1);
+% Add ActTime % USE AO CONVERTER TO GET START TIME OF FIRST
+% FILE
+promptT = {'Create Act Time'};
+dlgtitleT = {'Year', 'Month','Day','Hour','min','sec'};
+definputT = {'2021','1','1','14','32','54'};
+dimsT = [1 15; 1 15; 1 15 ; 1 15 ; 1 15; 1 15];
+actTIME = inputdlg(dlgtitleT,promptT{1},dimsT,definputT);
+actNm = cellfun(@(x) str2double(x), actTIME);
+recSTART = datetime(actNm(1),actNm(2),actNm(3),actNm(4),actNm(5),actNm(6));
+actimeVec = transpose(0:seconds(30):seconds((height(TT)-1)*30)) + recSTART;
+TT.ActTime = actimeVec;
+
+%%
+
+% Create FINAL LFP Timetables -------------------------
+LFPTT = lfpTABf;
+LFPTT.ActTime = actimeVec;
+LFPTTRaw = lfpTABfND;
+LFPTTRaw.ActTime = actimeVec;
+% SAVE OUT
+app.saveLOC = uigetdir();
+
+cd(app.saveLOC)
+
+
+
+%%
+prompt = {'Enter file name'};
+dlgtitle = {'PatientID', 'Institution','Night#'};
+definput = {'1','UNMC','1'};
+dims = [1 50; 1 50; 1 50];
+outP = inputdlg(dlgtitle,prompt{1},dims,definput);
+
+app.fname = [outP{1},'_',outP{2},'_',outP{3}];
+app.fnameMAT = [app.fname,'.mat'];
+app.fnameMATlfp = [app.fname,'_LFP.mat'];
+app.fnameMATlfpR = [app.fname,'_LFPraw.mat'];
+
+save(app.fnameMAT,'TT')
+save(app.fnameMATlfp,'LFPTT')
+save(app.fnameMATlfpR,'LFPTTRaw')
+
+
+
+
+
+
+
+
+
