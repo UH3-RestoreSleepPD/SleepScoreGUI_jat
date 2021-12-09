@@ -115,6 +115,14 @@ disp('Create Bins Done!')
 
 % Create sleep score bins
 sleepScoreCA = cell(height(lfpTABf) , 1);
+if height(sleepScoreCA) > height(sleepScoreR)
+    lfpTABf = lfpTABf(1:height(sleepScoreR),:);
+    lfpTABfND = lfpTABfND(1:height(sleepScoreR),:);
+    sleepScoreCA = cell(height(lfpTABf) , 1);
+elseif height(sleepScoreCA) < height(sleepScoreR)
+    sleepScoreR = sleepScoreR(1:height(sleepScoreCA),:);
+end
+
 for si = 1:height(lfpTABf)
 
     tmpSS = sleepScoreR(si,3);
