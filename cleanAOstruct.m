@@ -1,15 +1,15 @@
 %% Load
-cd('I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_3\RAW_UNMC_03_N2\oldmatfiles')
+cd('I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_6\RAW_UNMC_6_N2\oldmat')
 
-raw = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_3\RAW_UNMC_03_N2\oldmatfiles';
-new = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_3\RAW_UNMC_03_N2\newmatfiles';
+raw = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_6\RAW_UNMC_6_N2\oldmat';
+new = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\UNMC_6\RAW_UNMC_6_N2\newmat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};
 fileLIST = mdir2;
 
 
-%% Load
+% Load
 
 
 
