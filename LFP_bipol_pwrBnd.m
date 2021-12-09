@@ -1,0 +1,58 @@
+function [] = LFP_bipol_pwrBnd(folderLoc)
+
+
+% cd('J:\01_Coding_Datasets\NeuralNetwork_Sleep\NewData\UNMC_2');
+% J:\01_Coding_Datasets\NeuralNetwork_Sleep\PreFinal
+cd(folderLoc)
+
+% Get list
+
+% Extract relevant info [Subject, Institution, Night]
+
+% Loop through 
+
+% Save out struct with biopolar table and Norm Power table and key
+
+
+load('2_UNMC_1_LFP.mat','LFPTT')
+% Extract contacts as table
+leadTable = table2array(LFPTT(:,1:4));
+% Mean subtract
+lead0 = leadTable(:,1);
+lead1 = leadTable(:,2);
+lead2 = leadTable(:,3);
+lead3 = leadTable(:,4);
+
+lead01 = cellfun(@(x , y) x - mean([x,y],2), lead0, lead1, 'UniformOutput',false );
+lead12 = cellfun(@(x , y) x - mean([x,y],2), lead1, lead2, 'UniformOutput',false );
+lead23 = cellfun(@(x , y) x - mean([x,y],2), lead2, lead3, 'UniformOutput',false );
+allBipol = [lead01 , lead12 , lead23];
+% % Compute normalized power
+
+freqIdx = [0,3; ...     %Delta
+    3,8; ...            %Theta
+    8,13; ...           %Alpha
+    13,22; ...          %low-beta
+    22,30; ...          %high-beta
+    30,50; ...          %low-gamma
+    50,100; ...         %mid-gamma
+    100,125];           %high-gamma
+freqList = {'Delta';'Theta'; 'Alpha'; 'LowBeta'; ...
+    'HighBeta'; 'LowGamma'; 'MidGamma'; 'HighGamma'};
+
+freqPwrAv = cell(size(allBipol));
+for bpi = 1:size(allBipol,2) % Number of bipolar leads
+    for epi = 1:size(allBipol,1) % Number of epochs
+        % Temporary bin
+        tmpBin = allBipol{epi,bpi};
+        % Get power and bins
+        [pwrR , freqI] = pspectrum(tmpBin,250,'FrequencyResolution',1);
+        pwRnorm = normalize(pwrR);
+        freqAveTmp = zeros(8,1);
+        for pbi = 1:size(freqIdx,1) % Number of frequency bins
+            freqAveTmp(pbi) = mean(pwRnorm(freqI > freqIdx(pbi,1) & freqI < freqIdx(pbi, 2)));
+        end
+        freqPwrAv{bpi,epi} = freqAveTmp;
+    end
+end
+
