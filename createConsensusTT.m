@@ -1,6 +1,22 @@
 function [] = createConsensusTT(folderLOC , saveLOC)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
+%
+%
+%
+% Folder structure
+% Consensus Folder
+% Separate cases Folder
+% ---- CK Folder
+%      ---- NIGHT 1 data
+%      ---- NIGHT 2 data
+%      ---- NIGHT 3 data
+% ---- ST Folder
+% ---- LW Folder
+% ---- MS Folder
+% ---- NIGHT 1 data (any case)
+% ---- NIGHT 2 data (any case)
+% ---- NIGHT 3 data (any case)
 
 cd(folderLOC)
 
@@ -48,9 +64,9 @@ for di = 1:length(dir3)
     nightLIST = getFList(1);
 
     % Get Scorer ID
-    foldINfo = split(dir3{di},'_');
-    scoreID = replace(foldINfo{2},' ','');
-    if ismember(scoreID,{'LW','ST','CK'})
+    scoreID = split(dir3{di},'_');
+%     scoreID = replace(foldINfo{2},' ','');
+    if ismember(scoreID,{'LW','ST'})
         cOLs = 'STNF';
     else
         cOLs = 'UNMC';
@@ -69,13 +85,13 @@ for di = 1:length(dir3)
 
         switch nighTT
             case '1'
-                TT1.(scoreID) = TT.(cOLs);
+                TT1.(scoreID{1}) = TT.(cOLs);
 
             case '2'
-                TT2.(scoreID) = TT.(cOLs);
+                TT2.(scoreID{1}) = TT.(cOLs);
 
             case '3'
-                TT3.(scoreID) = TT.(cOLs);
+                TT3.(scoreID{1}) = TT.(cOLs);
         end
 
     end
