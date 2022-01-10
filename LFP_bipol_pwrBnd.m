@@ -7,12 +7,13 @@ cd(folderLoc)
 % Get list
 matDIR = dir('*.mat');
 fileDIR = {matDIR.name};
+fileDir2 = fileDIR(contains(fileDIR, '_NN'));
 
 sleepData = struct;
 % Loop through
-for fi = 1:length(fileDIR)
+for fi = 1:length(fileDir2)
     cd(folderLoc)
-    tmpFile = fileDIR{fi};
+    tmpFile = fileDir2{fi};
     % Extract relevant info [Subject, Institution, Night]
     tmpItems = split(tmpFile,{'_','.'});
     tmpSub = tmpItems{1};
