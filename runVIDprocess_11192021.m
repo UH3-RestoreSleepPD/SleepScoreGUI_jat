@@ -1,4 +1,3 @@
-
 %% Steps for automation
 
 % 1. Folder with data
@@ -33,7 +32,7 @@ end
 
 
 %% Create Epochs
-VideoEpochCreate_07042021(saveDIR , epFold , 7)
+VideoEpochCreate_01272022(saveDIR , epFold , 7)
 
 %% Create LFP/EEG .mat files
 
