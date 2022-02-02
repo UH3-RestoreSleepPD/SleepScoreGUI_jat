@@ -12,8 +12,8 @@
 %        1. Save in FullNight folder
 
 % ii. Run Epoch create on data in FullNight folder
-vidLOC = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\Night 3';
-epFold = 'I:\01_Coding_Datasets\SLEEP_Score_Consensus\FinalDATA\NIGHT_3\VideoDATA';
+vidLOC = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_9\newmat\NIGHT1\Video';
+epFold = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_9\newmat\NIGHT1\Video\VideoDATA';
 
 cd(vidLOC)
 vidDir1 = dir('*.mp4');
