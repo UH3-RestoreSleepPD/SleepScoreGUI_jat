@@ -1,8 +1,8 @@
 %% Load
-cd('C:\Users\John\Downloads\Raw AO-selected (1)\oldmat')
+cd('I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_11\oldMat')
 
-raw = 'C:\Users\John\Downloads\Raw AO-selected (1)\oldmat';
-new = 'C:\Users\John\Downloads\Raw AO-selected (1)\newmat';
+raw = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_11\oldMat';
+new = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_11\newMat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};

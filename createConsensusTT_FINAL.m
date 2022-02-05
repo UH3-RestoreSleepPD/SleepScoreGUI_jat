@@ -30,7 +30,8 @@ for fi = 1:3
     % Loop through folders Scores
     for ffi = 1:length(dir3)
 
-        cd(dir3{ffi})
+        tmpDir = [folderLOC , filesep , dir3{ffi}];
+        cd(tmpDir)
         curList = getFList(1);
 
         fElems = split(curList,{'_'});
@@ -44,71 +45,59 @@ for fi = 1:3
         instit = replace(curMAtels{2},' ','');
 
         % Load
-        load(curMAt{fi},'TT')
+        load(curMAt{1},'TT')
 
-        % Clear sleep scores
-        TT = removevars(TT,{'STNF', 'UNMC'});
-
-        % Add var columns
-        LW = TT.notes;
-        ST = TT.notes;
-        CK = TT.notes;
-        MS = TT.notes;
-        TT = addvars(TT,LW,ST,CK,MS,'After','ChinZ');
-
-        % Rename
-        switch fi
-            case 1
-                TT1 = TT;
-            case 2
-                TT2 = TT;
-            case 3
-                TT3 = TT;
+        if ffi == 1
+            fTT = TT;
+            fTT.FINALSCORE = [];
         end
+
+        % Clean up TT
+        emLOC = cellfun(@(x) isempty(x), TT.FINALSCORE, 'UniformOutput',true);
+
+        if any(emLOC)
+            fixX = 1;
+        else
+            fixX = 0;
+        end
+
+        switch dir3{ffi}
+            case 'CK'
+                if fixX
+                    TT.FINALSCORE(emLOC) = TT.CK(emLOC);
+                end
+                fTT.CK = TT.FINALSCORE;
+            case 'LW'
+                if fixX
+                    TT.FINALSCORE(emLOC) = TT.LW(emLOC);
+                end
+                fTT.LW = TT.FINALSCORE;
+            case 'ST'
+                if fixX
+                    TT.FINALSCORE(emLOC) = TT.ST(emLOC);
+                end
+                fTT.ST = TT.FINALSCORE;
+            case 'MS'
+                if fixX
+                    TT.FINALSCORE(emLOC) = TT.MS(emLOC);
+                end
+                fTT.MS = TT.FINALSCORE;
+        end
+
+
+    end
+
+    switch fi
+        case 1
+            TT1 = fTT;
+        case 2
+            TT2 = fTT;
+        case 3
+            TT3 = fTT;
     end
 end
 
-% Loop through unique score data
-for di = 1:length(dir3)
-    % Temp Score Dir
-    cd([folderLOC, filesep , dir3{di}])
-    % Get list of Nights
-    nightLIST = getFList(1);
 
-    % Get Scorer ID
-    scoreID = split(dir3{di},'_');
-%     scoreID = replace(foldINfo{2},' ','');
-    if ismember(scoreID,{'LW','ST'})
-        cOLs = 'STNF';
-    else
-        cOLs = 'UNMC';
-    end
-
-    % Loop through nights
-    for ni = 1:length(nightLIST)
-
-        tmpNight = nightLIST{ni};
-        load(tmpNight,'TT')
-
-        % Get file info - Subject, Institution, Night, Scorer
-        fElems = split(tmpNight,{'_','(',')','.'});
-
-        nighTT = replace(fElems{3},' ','');
-
-        switch nighTT
-            case '1'
-                TT1.(scoreID{1}) = TT.(cOLs);
-
-            case '2'
-                TT2.(scoreID{1}) = TT.(cOLs);
-
-            case '3'
-                TT3.(scoreID{1}) = TT.(cOLs);
-        end
-
-    end
-
-end
 
 cd(saveLOC)
 for sti = 1:3
