@@ -16,10 +16,6 @@
 % RUN
 % SleepDataCreateTT_EEGoLFP_v2.mlapp
 
-%% Step 3
-% Process Video file
-% RUN
-% runVIDprocess_11192021.m
 
 
 
