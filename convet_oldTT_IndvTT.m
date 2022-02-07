@@ -11,15 +11,24 @@ for ti = 1:length(dirMATu)
     load(dirMATu{ti},'TT')
 
     ttN = TT;
-    ttN.CK = ttN.STNF;
-    ttN.LW = ttN.STNF;
-    ttN.ST = ttN.STNF;
-    ttN.MS = ttN.STNF;
+
+    tmpEmp = repmat({''}, height(TT),1);
+
+    ttN.CK = tmpEmp;
+    ttN.LW = tmpEmp;
+    ttN.ST = tmpEmp;
+    ttN.MS = tmpEmp;
+
     % Overwrite column names
-    ttN = removevars(ttN,{'STNF','UNMC'});
-    % Create new columns
-    ttN = movevars(ttN,{'CK','LW','ST','MS'},'After','ChinZ');
-    TT = ttN;
+    tabNames = ttN.Properties.VariableNames;
+    if matches('STNF',tabNames)
+        ttN = removevars(ttN,{'STNF','UNMC'});
+        % Create new columns
+        ttN = movevars(ttN,{'CK','LW','ST','MS'},'After','ChinZ');
+        TT = ttN;
+    else
+        TT = ttN;
+    end
 
     %% Save out
     save(dirMATu{ti},"TT");
