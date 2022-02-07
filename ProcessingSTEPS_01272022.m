@@ -1,7 +1,15 @@
 %% Step 1
 % Clean MAT files
 % RUN
-% cleanAOstruct.m
+% convertOLD_NEW_AOmat.m
+% Function
+% Inputs: 
+% 1. Location for old .mat files
+% 2. Location for new .mat files
+% Example 
+% oldmat = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_12\oldmat';
+% newmat = 'I:\01_Coding_Datasets\SLEEP VIDEO\UNMC_12\newmat';
+% convertOLD_NEW_AOmat(oldmat, newmat)
 
 %% Step 2
 % Create EEG_LFP TimeTable
