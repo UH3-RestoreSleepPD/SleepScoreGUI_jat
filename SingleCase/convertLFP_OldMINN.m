@@ -22,10 +22,24 @@ lfpDataR = eval(varlist.lfp{1});
 
 disp('data loaded!')
 
-% Get DBS data
-labInds = ismember(lfpDataR.montage,{'LFP0','LFP1','LFP2','LFP3'});
-lfpCols = lfpDataR.data(:,labInds);
-lfpFs = lfpDataR.Fs;
+
+if matches(patID, '10') || matches(patID, '9')
+    labInds = ismember(lfpDataR(1).montage,{'LFP0','LFP1','LFP2','LFP3'});
+
+    lfpCols1 = lfpDataR(1).data(:,labInds);
+    lfpCols2 = lfpDataR(2).data(:,labInds);
+    lfpCols = [lfpCols1 ; lfpCols2];
+    lfpFs = lfpDataR.Fs;
+
+else
+
+    % Get DBS data
+    % lfpDataRNEW = cellfun(@num2str,lfpDataR.montage,'uni',0);
+    labInds = ismember(lfpDataR.montage,{'LFP0','LFP1','LFP2','LFP3'});
+    lfpCols = lfpDataR.data(:,labInds);
+    lfpFs = lfpDataR.Fs;
+
+end
 
 % DETERMINE ID for LFP ----------------------------------------
 chanLab_LFP = {'DBS','DBS','DBS','DBS'};
