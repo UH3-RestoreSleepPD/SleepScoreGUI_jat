@@ -66,7 +66,7 @@ for di = 1:length(dir3)
     % Get Scorer ID
     scoreID = split(dir3{di},'_');
 %     scoreID = replace(foldINfo{2},' ','');
-    if ismember(scoreID,{'LW','ST'})
+    if ismember(scoreID,{'LW','ST','CK'})
         cOLs = 'STNF';
     else
         cOLs = 'UNMC';
@@ -85,13 +85,25 @@ for di = 1:length(dir3)
 
         switch nighTT
             case '1'
-                TT1.(scoreID{1}) = TT.(cOLs);
+                if ismember(scoreID{1},TT.Properties.VariableNames)
+                    TT1.(scoreID{1}) = TT.(scoreID{1});
+                else
+                    TT1.(scoreID{1}) = TT.(cOLs);
+                end
 
             case '2'
-                TT2.(scoreID{1}) = TT.(cOLs);
+                if ismember(scoreID{1},TT.Properties.VariableNames)
+                    TT2.(scoreID{1}) = TT.(scoreID{1});
+                else
+                    TT2.(scoreID{1}) = TT.(cOLs);
+                end
 
             case '3'
-                TT3.(scoreID{1}) = TT.(cOLs);
+                if ismember(scoreID{1},TT.Properties.VariableNames)
+                    TT3.(scoreID{1}) = TT.(scoreID{1});
+                else
+                    TT3.(scoreID{1}) = TT.(cOLs);
+                end
         end
 
     end

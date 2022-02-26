@@ -34,7 +34,7 @@ for fi = 1:3
         cd(tmpDir)
         curList = getFList(1);
 
-        fElems = split(curList,{'_'});
+        fElems = split(curList,{'_','.'});
         nightS = fElems(:,:,3);
 
         nighInd = matches(nightS,num2str(fi));
