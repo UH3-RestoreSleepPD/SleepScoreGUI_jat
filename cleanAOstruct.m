@@ -1,8 +1,8 @@
 %% Load
-cd('I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_1\night2\oldmat')
+cd('J:\01_Coding_Datasets\SLEEP VIDEO\UNMC_1\Night 3\oldmat')
 
-raw = 'I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_1\night2\oldmat';
-new = 'I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_1\night2\newmat';
+raw = 'J:\01_Coding_Datasets\SLEEP VIDEO\UNMC_1\Night 3\oldmat';
+new = 'J:\01_Coding_Datasets\SLEEP VIDEO\UNMC_1\Night 3\newmat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};
@@ -17,7 +17,7 @@ for fi = 1:length(fileLIST)
     cd(raw)
     matob = matfile(fileLIST{fi});
     varlist = who(matob);
-    chanlist = varlist(~contains(varlist,{'SF','Ports','CADD','Channel','CANALOG','new','raw','fileLIST'}));
+    chanlist = varlist(~contains(varlist,{'SF','Ports','CADD','Channel','CANALOG','new','raw','fileLIST','CMacro','CRAW','CSPK','CLFP'}));
     
     cd(raw)
     load(fileLIST{fi},chanlist{:});
