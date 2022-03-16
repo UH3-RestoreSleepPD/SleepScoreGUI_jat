@@ -75,6 +75,18 @@ switch stagE
 
     case 3 % Analysis
 
+        % Go to summary folder
+
+        % Load in each
+
+        % Fraction of epochs with 50%
+
+        % Fraction of epochs with 75% 
+
+        % Fraction of epochs with 100%
+
+        % ID of each epoch 
+
 
 
 end
