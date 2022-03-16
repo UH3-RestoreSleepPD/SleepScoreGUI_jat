@@ -1,4 +1,4 @@
-function [] = LW_consensusAnalysis_v1(stagE)
+function [] = LW_consensusAnalysis_v1(stagE , dirID)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 %
@@ -18,12 +18,60 @@ function [] = LW_consensusAnalysis_v1(stagE)
 % ---- NIGHT 2 data (any case)
 % ---- NIGHT 3 data (any case)
 
+mainLOC = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy']; % NeuroWork
+saveDIR = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy\Summary']; % NeuroWork
+
 switch stagE
     case 1 % extract initial scores
+        stageDir = [mainLOC , filesep , 'InitialReview'];
+        cd(stageDir)
+        allLIST = getFList(1);
 
+        tmpDat = cell(1,length(allLIST));
+        for ci = 1:length(allLIST)
+
+            load(allLIST{ci},'TT')
+            tmpTab = TT(:,{'LW','ST','MS','CK'});
+            tmpDat{ci} = tmpTab;
+
+        end
+
+        initialDat = tmpDat;
+
+        cd(saveDIR)
+        save('InitialReview.mat','initialDat','allLIST');
+
+        disp('Initial data sort done!')
+
+        return
 
     case 2 % extract consensus 1 scores and final scores
+        stageDir = [mainLOC , filesep , 'Consensus1'];
+        cd(stageDir)
+        allLIST = getFList(1);
 
+        tmpDat1 = cell(1,length(allLIST));
+        tmpDat2 = cell(1,length(allLIST));
+        for ci = 1:length(allLIST)
+
+            load(allLIST{ci},'TT')
+            tmpTab1 = TT(:,{'LW','ST','MS','CK'});
+            tmpTab2 = TT(:,"FINALSCORE");
+            tmpDat1{ci} = tmpTab1;
+            tmpDat2{ci} = tmpTab2;
+
+        end
+
+        Con1Dat = tmpDat1;
+        ConFDat = tmpDat2;
+
+        cd(saveDIR)
+        save('Consensus1.mat','Con1Dat','allLIST');
+        save('ConsensusF.mat','ConFDat','allLIST');
+
+        disp('Consensus data sort done!')
+
+        return
 
     case 3 % Analysis
 
@@ -31,11 +79,11 @@ switch stagE
 
 end
 
-mainLOC = 'J:\01_Coding_Datasets\LW_ConsensusStudy'; % NeuroWork
 
 
 
-cd(folderLOC)
+
+
 
 % Get folder dir
 dir3 = getFList(2);
