@@ -90,20 +90,20 @@ switch stagE
                     allscores = cell(size(initialDat));
                     for ii = 1:length(initialDat)
                         tmpDay = initialDat{ii};
-                        finScore = cell(height(tmpDay),1);
-                        perAgree = zeros(height(tmpDay),1);
-                        for ei = 1:height(tmpDay)
+                        finScore = cell(size(tmpDay));
+                        perAgree = zeros(size(tmpDay));
+                        for ei = 1:length(tmpDay)
                             tmpE = table2cell(tmpDay(ei,1:4));
                             tabU = tabulate(tmpE);
                             if tabU{1,3} >= 75
-                                finScore{ei} = tabU{1,1};
-                                perAgree(ei) = tabU{1,3};
-                            else
-                                finScore{ei} = 'U';
-                                perAgree(ei) = tabU{1,3};
-                            end
+                                finScore = 
+
+
+
+                            
+
+
                         end
-                        allscores{ii} = table(finScore,perAgree,'VariableNames',{'FinalScore','PercentAgree'});
                     end
                 case 2
 
