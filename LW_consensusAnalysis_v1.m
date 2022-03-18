@@ -87,163 +87,97 @@ switch stagE
 
             switch di
                 case 1
-                    allscores = cell(size(initialDat));
-                    for ii = 1:length(initialDat)
-                        tmpDay = initialDat{ii};
-                        finScore = cell(height(tmpDay),1);
-                        perAgree = zeros(height(tmpDay),1);
-                        for ei = 1:height(tmpDay)
-                            tmpE = table2cell(tmpDay(ei,1:4));
-                            tabU = tabulate(tmpE);
-                            if tabU{1,3} >= 75
-                                finScore{ei} = tabU{1,1};
-                                perAgree(ei) = tabU{1,3};
-                            else
-                                finScore{ei} = 'U';
-                                perAgree(ei) = tabU{1,3};
-                            end
-                        end
-                        allscores{ii} = table(finScore,perAgree,'VariableNames',{'FinalScore','PercentAgree'});
-                    end
+                    initialScores = processAlldat(initialDat);
+                    initialprocess = epochSummarize(initialScores,1);
                 case 2
-
+                    consen1Scores = processAlldat(Con1Dat);
+                    consen1process = epochSummarize(consen1Scores,2);
                 case 3
-
+                    consenFprocess = epochSummarize(ConFDat,3);
 
             end
-
-
         end
 
-        % Fraction of epochs with 50%
+        % For each % Agree per stage
 
-        % Fraction of epochs with 75% 
-
-        % Fraction of epochs with 100%
-
-        % ID of each epoch 
+        % Loop through and mash together in new table with DATE name in
+        % column
+        test = 1;
 
 
 
 end
 
+end % END of function
 
 
 
+function [allScoreDat] = processAlldat(allcell)
 
 
-
-% Get folder dir
-dir3 = getFList(2);
-
-% Load all Nights and create final save file
-finTTlist = getFList(1);
-for fi = 1:length(finTTlist)
-
-    fElems = split(finTTlist{fi},{'_','(',')'});
-
-    subID = replace(fElems{1},' ','');
-    instit = replace(fElems{2},' ','');
-
-    % Load
-    load(finTTlist{fi},'TT')
-
-    % Clear sleep scores
-    TT = removevars(TT,{'STNF', 'UNMC'});
-
-    % Add var columns
-    LW = TT.notes;
-    ST = TT.notes;
-    CK = TT.notes;
-    MS = TT.notes;
-    TT = addvars(TT,LW,ST,CK,MS,'After','ChinZ');
-
-    % Rename
-    switch fi
-        case 1
-            TT1 = TT;
-        case 2
-            TT2 = TT;
-        case 3
-            TT3 = TT;
+allScoreDat = cell(size(allcell));
+for ii = 1:length(allcell)
+    tmpDay = allcell{ii};
+    finScore = cell(height(tmpDay),1);
+    perAgree = zeros(height(tmpDay),1);
+    for ei = 1:height(tmpDay)
+        tmpE = table2cell(tmpDay(ei,1:4));
+        tabU = tabulate(tmpE);
+        if tabU{1,3} >= 75
+            finScore{ei} = tabU{1,1};
+            perAgree(ei) = tabU{1,3};
+        else
+            finScore{ei} = 'U';
+            perAgree(ei) = tabU{1,3};
+        end
     end
+    allScoreDat{ii} = table(finScore,perAgree,'VariableNames',{'FinalScore','PercentAgree'});
 end
 
-% Loop through unique score data
-for di = 1:length(dir3)
-    % Temp Score Dir
-    cd([folderLOC, filesep , dir3{di}])
-    % Get list of Nights
-    nightLIST = getFList(1);
+end
 
-    % Get Scorer ID
-    scoreID = split(dir3{di},'_');
-%     scoreID = replace(foldINfo{2},' ','');
-    if ismember(scoreID,{'LW','ST','CK'})
-        cOLs = 'STNF';
+
+
+function [stageProcess] = epochSummarize(inScores, stageEE)
+
+stageIDS = {'N1','N2','N3','R','W','U'};
+
+stageProcess = cell(size(inScores));
+for is = 1:length(inScores)
+    tmpDay = inScores{is};
+
+    if ismember(stageEE,[1,2])
+        tmpTAB = tabulate(tmpDay.FinalScore);
     else
-        cOLs = 'UNMC';
+        tmpDay(cellfun(@(x) isempty(x), tmpDay.FINALSCORE),:) = [];
+        tmpTAB = tabulate(tmpDay.FINALSCORE);
     end
 
-    % Loop through nights
-    for ni = 1:length(nightLIST)
+    tmpTABo = cell2table(tmpTAB,'VariableNames',{'Stage','Count','Percent'});
 
-        tmpNight = nightLIST{ni};
-        load(tmpNight,'TT')
+    if length(tmpTABo.Stage) < length(stageIDS)
 
-        % Get file info - Subject, Institution, Night, Scorer
-        fElems = split(tmpNight,{'_','(',')','.'});
+        % Determine which are missing
+        st2add = stageIDS(~ismember(stageIDS,tmpTABo.Stage));
 
-        nighTT = replace(fElems{3},' ','');
-
-        switch nighTT
-            case '1'
-                if ismember(scoreID{1},TT.Properties.VariableNames)
-                    TT1.(scoreID{1}) = TT.(scoreID{1});
-                else
-                    TT1.(scoreID{1}) = TT.(cOLs);
-                end
-
-            case '2'
-                if ismember(scoreID{1},TT.Properties.VariableNames)
-                    TT2.(scoreID{1}) = TT.(scoreID{1});
-                else
-                    TT2.(scoreID{1}) = TT.(cOLs);
-                end
-
-            case '3'
-                if ismember(scoreID{1},TT.Properties.VariableNames)
-                    TT3.(scoreID{1}) = TT.(scoreID{1});
-                else
-                    TT3.(scoreID{1}) = TT.(cOLs);
-                end
+        for ssi = 1:length(st2add)
+            newRow = height(tmpTABo) + 1;
+               tmpTABo.Stage(newRow) = st2add(ssi);
+               tmpTABo.Count(newRow) = 0;
+               tmpTABo.Percent(newRow) = 0;
         end
-
     end
-
+    stageProcess{is} = tmpTABo;
 end
 
-cd(saveLOC)
-for sti = 1:3
-    switch sti
-        case 1
-            TT = TT1;
-            saveN = [subID,'_',instit,'_1_CS.mat'];
-        case 2
-            TT = TT2;
-            saveN = [subID,'_',instit,'_2_CS.mat'];
-        case 3
-            TT = TT3;
-            saveN = [subID,'_',instit,'_3_CS.mat'];
-    end
-    save(saveN,"TT");
+
 end
 
 
 
 
 
-end
+
 
 
 
