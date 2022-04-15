@@ -70,6 +70,9 @@ for di = 1:length(dir3)
         switch nighTT
             case '1'
                 if sum(matches(TT.Properties.VariableNames,'UNMC'))
+                    if height(TT) ~= height(TT1)
+                        TT = TT(1:height(TT1),:);
+                    end
                     TT1.(scoreID{1}) = TT.UNMC;
                 else
                     TT1.(scoreID{1}) = TT.(scoreID{1});
