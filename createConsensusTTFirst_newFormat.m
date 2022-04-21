@@ -100,13 +100,13 @@ for sti = 1:3
     switch sti
         case 1
             TT = TT1;
-            saveN = [subID,'_',instit,'_1_CS.mat'];
+            saveN = [subID,'_',instit,'_1.mat'];
         case 2
             TT = TT2;
-            saveN = [subID,'_',instit,'_2_CS.mat'];
+            saveN = [subID,'_',instit,'_2.mat'];
         case 3
             TT = TT3;
-            saveN = [subID,'_',instit,'_3_CS.mat'];
+            saveN = [subID,'_',instit,'_3.mat'];
     end
     save(saveN,"TT");
 end

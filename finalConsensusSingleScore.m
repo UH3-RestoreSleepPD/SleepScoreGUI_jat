@@ -44,7 +44,7 @@ for ffi = 1:length(dir3)
 
                 load(curList{ci},'TT')
 
-                TTn.(['N', nightS{ci}]).(dir3{ffi}) = TT.(dir3{ffi});
+                TTn.(['N', nightS{ci}]).(dir3{ffi}) = TT.FINALSCORE;
            
             end
 
