@@ -1,4 +1,4 @@
-function [] = LW_consensusAnalysis_v1(stagE , dirID)
+function [] = LW_consensusAnalysis_v2(stagE , dirID)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 %
@@ -19,7 +19,7 @@ function [] = LW_consensusAnalysis_v1(stagE , dirID)
 % ---- NIGHT 3 data (any case)
 
 mainLOC = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy']; % NeuroWork
-saveDIR = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy\Summary']; % NeuroWork
+saveDIR = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy\Summary2']; % NeuroWork
 
 switch stagE
     case 1 % extract initial scores
@@ -50,23 +50,18 @@ switch stagE
         cd(stageDir)
         allLIST = getFList(1);
 
-        tmpDat1 = cell(1,length(allLIST));
         tmpDat2 = cell(1,length(allLIST));
         for ci = 1:length(allLIST)
 
             load(allLIST{ci},'TT')
-            tmpTab1 = TT(:,{'LW','ST','MS','CK'});
             tmpTab2 = TT(:,"FINALSCORE");
-            tmpDat1{ci} = tmpTab1;
             tmpDat2{ci} = tmpTab2;
 
         end
 
-        Con1Dat = tmpDat1;
         ConFDat = tmpDat2;
 
         cd(saveDIR)
-        save('Consensus1.mat','Con1Dat','allLIST');
         save('ConsensusF.mat','ConFDat','allLIST');
 
         disp('Consensus data sort done!')
@@ -81,21 +76,16 @@ switch stagE
         % Load in each
         load('InitialReview.mat','initialDat','allLIST')
         initLIST = allLIST;
-        load('Consensus1.mat','Con1Dat','allLIST')
-        consen1LIST = allLIST;
         load('ConsensusF.mat','ConFDat','allLIST')
         consenFLIST = allLIST;
 
-        for di = 1:3
+        for di = 1:2
 
             switch di
                 case 1
                     initialScores = processAlldat(initialDat);
                     initialprocess = epochSummarize(initialScores,1);
                 case 2
-                    consen1Scores = processAlldat(Con1Dat);
-                    consen1process = epochSummarize(consen1Scores,2);
-                case 3
                     consenFprocess = epochSummarize(ConFDat,3);
 
             end
@@ -108,7 +98,7 @@ switch stagE
         finTable = table;
         stageCol = {};
         caseCol = {};
-        for sti = 1:3
+        for sti = 1:2
 
             tmpTable = table;
             switch sti
@@ -123,18 +113,8 @@ switch stagE
 
                     stageCol = [stageCol ; repmat({'Initial'},height(tmpTable),1)];
 
+
                 case 2
-
-                    for ei1 = 1:length(consen1LIST)
-
-                        tmpTable = [tmpTable ; consen1process{ei1}];
-                        caseCol = [caseCol ; repmat(consen1LIST(ei1),6,1)];
-
-                    end
-
-                    stageCol = [stageCol ; repmat({'Consensus1'},height(tmpTable),1)];
-
-                case 3
 
                     for ei1 = 1:length(consenFLIST)
 
