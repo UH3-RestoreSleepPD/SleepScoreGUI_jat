@@ -1,8 +1,8 @@
 %% Load
-cd('I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_2\oldmat')
+cd('C:\Users\John\Downloads\UNMC_1_N3\oldmat')
 
-raw = 'I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_2\oldmat';
-new = 'I:\01_Coding_Datasets\SLEEP VIDEO\UPENN_2\newmat';
+raw = 'C:\Users\John\Downloads\UNMC_1_N3\oldmat';
+new = 'C:\Users\John\Downloads\UNMC_1_N3\newmat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};
