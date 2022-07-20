@@ -105,12 +105,21 @@ for ni = 1:length(nightStn)
     end
 end
 
+% Creat final cell
+ttnNights = fieldnames(TTn);
+
+finalCS = struct;
+for ti = 1:length(ttnNights)
+
+    finalCS.(ttnNights{ti}) = TTn.(ttnNights{ti}).FINAL;
+
+end
 
 
 saveID = [subNUM, '_' , institut ,'_Fscores.mat'];
 
 cd(saveLOC)
-save(saveID,"TTn")
+save(saveID,"finalCS")
 
 
 
