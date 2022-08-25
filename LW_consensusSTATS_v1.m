@@ -75,9 +75,6 @@ slStagef = {};
 timePf = {};
 counTf = [];
 
-indexMiss_F = cell(length(finalLIST),4);
-nameMiss_F = cell(length(finalLIST),4);
-
 for fi = 1:length(finalLIST)
 
     tmpFn = finalLIST{fi};
@@ -92,14 +89,21 @@ for fi = 1:length(finalLIST)
         tmpCounts = tmpTab.(rNms{ri});
 
         % Save index of missing
-        missInd = find(matches(tmpCounts,''));
-        missNme = [rNms{ri},'=',initLIST{fi}];
-        indexMiss_I{fi,ri} = missInd;
-        nameMiss_I{fi,ri} = missNme;
-        % Remove index of missing
-        tmpConMr = tmpCounts(~matches(tmpCounts,''));
+        missLOG = ones(size(tmpCounts),'logical');
+        % Find missIndex
+        searchID = [rNms{ri},'=',finalLIST{fi}];
+        matLOC = matches(nameMiss_I,searchID);
+        missVEC = indexMiss_I{matLOC};
+        missLOG(missVEC) = false; 
 
-        tabCounts = tabulate(tmpConMr);
+        % Remove index of missing
+        newTab = tmpCounts(missLOG);
+
+        if sum(cellfun(@(x) isfloat(x), newTab)) ~= 0
+            newTab = newTab(cellfun(@(x) ~isfloat(x), newTab));
+        end
+
+        tabCounts = tabulate(newTab);
         tmpTP = repmat({'F'},height(tabCounts),1);
         tmpRat = repmat(rNms(ri),height(tabCounts),1);
         tmpFN = repmat(initLIST(fi),height(tabCounts),1);
@@ -114,4 +118,5 @@ for fi = 1:length(finalLIST)
 
 end
 
+test = 1;
 
