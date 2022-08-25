@@ -17,7 +17,7 @@ finalTables = finalConfL;
 finalLIST = finalNlist;
 
 % Create Initial missing List
-
+[allMissName,allMissIND] = generateIMiss(initLIST,finalLIST,initTables,finalTables);
 
 fNamei = {};
 raterNi = {};
@@ -27,14 +27,10 @@ counTi = [];
 
 % INITIAL
 
-indexMiss_I = cell(length(initLIST),4);
-nameMiss_I = cell(length(initLIST),4);
 
 for ii = 1:length(initLIST)
 
-    tmpFn = initLIST{ii};
     tmpTab = initTables{ii};
-
     % Fix none character values
 
     % Loop through rater
@@ -44,14 +40,16 @@ for ii = 1:length(initLIST)
         tmpCounts = tmpTab.(rNms{ri});
 
         % Save index of missing
-        missInd = find(matches(tmpCounts,''));
-        missNme = [rNms{ri},'=',initLIST{ii}];
-        indexMiss_I{ii,ri} = missInd;
-        nameMiss_I{ii,ri} = missNme;
-        % Remove index of missing
-        tmpConMr = tmpCounts(~matches(tmpCounts,''));
+        searchID = [rNms{ri},'=',initLIST{ii}];
+        matLOC = matches(allMissName,searchID);
+        SmissVEC = allMissIND{matLOC};
+ 
+        missLOG = ones(size(tmpCounts),'logical');
+        missLOG(SmissVEC) = false; 
 
-        tabCounts = tabulate(tmpConMr);
+        newTab = tmpCounts(missLOG);
+
+        tabCounts = tabulate(newTab);
         tmpTP = repmat({'I'},height(tabCounts),1);
         tmpRat = repmat(rNms(ri),height(tabCounts),1);
         tmpFN = repmat(initLIST(ii),height(tabCounts),1);
@@ -77,7 +75,6 @@ counTf = [];
 
 for fi = 1:length(finalLIST)
 
-    tmpFn = finalLIST{fi};
     tmpTab = finalTables{fi};
 
     % Fix none character values
@@ -89,24 +86,20 @@ for fi = 1:length(finalLIST)
         tmpCounts = tmpTab.(rNms{ri});
 
         % Save index of missing
-        missLOG = ones(size(tmpCounts),'logical');
-        % Find missIndex
         searchID = [rNms{ri},'=',finalLIST{fi}];
-        matLOC = matches(nameMiss_I,searchID);
-        missVEC = indexMiss_I{matLOC};
-        missLOG(missVEC) = false; 
+        matLOC = matches(allMissName,searchID);
+        SmissVEC = allMissIND{matLOC};
+ 
+        missLOG = ones(size(tmpCounts),'logical');
+        missLOG(SmissVEC) = false; 
 
         % Remove index of missing
         newTab = tmpCounts(missLOG);
 
-        if sum(cellfun(@(x) isfloat(x), newTab)) ~= 0
-            newTab = newTab(cellfun(@(x) ~isfloat(x), newTab));
-        end
-
         tabCounts = tabulate(newTab);
         tmpTP = repmat({'F'},height(tabCounts),1);
         tmpRat = repmat(rNms(ri),height(tabCounts),1);
-        tmpFN = repmat(initLIST(fi),height(tabCounts),1);
+        tmpFN = repmat(finalLIST(fi),height(tabCounts),1);
 
         fNamef = [fNamef ; tmpFN];
         raterNf = [raterNf ; tmpRat];
@@ -118,7 +111,14 @@ for fi = 1:length(finalLIST)
 
 end
 
-test = 1;
+allfName = [fNamei ; fNamef];
+allrater = [raterNi ; raterNf];
+alltimeP = [timePi ; timePf];
+allSStage = [slStagei ; slStagef];
+allcountS = [counTi ; counTf];
+
+dataTable = table(allfName,allrater,alltimeP,allSStage,allcountS,...
+    'VariableNames',{'FileN','RaterID','TimeP','SStage','CountS'});
 
 end
 
@@ -162,18 +162,24 @@ for fi = 1:length(fnLIST)
         tmpCounts = tmpTab.(rNms{ri});
 
         % Save index of missing
-        missInd = find(matches(tmpCounts,'') | cellfun(@(x) isfloat(x), newTab));
+
         
-        missNme = [rNms{ri},'=',initLIST{ii}];
-        indexMiss_I{ii,ri} = missInd;
-        nameMiss_I{ii,ri} = missNme;
-        % Remove index of missing
-        tmpConMr = tmpCounts(~matches(tmpCounts,''));
+        if sum(cellfun(@(x) isfloat(x), tmpCounts)) ~= 0
+            missIndf2 = find(cellfun(@(x) isfloat(x), tmpCounts));
+            missIndf1 = [];
+        else
+            missIndf2 = [];
+            missIndf1 = find(matches(tmpCounts,''));
+        end
+        missInd = [missIndf1 ; missIndf2];
+        searchID = [rNms{ri},'=',fnLIST{fi}];
+        matLOC = matches(missName,searchID);
+        missVEC = missIND{matLOC};
 
+        allMiss1 = [missVEC ; missInd];
+        allMiss2 = unique(allMiss1);
 
-        % Remove index of missing
-        newTab = tmpCounts(missLOG);
-
+        missIND{matLOC} = allMiss2;
 
     end
 
