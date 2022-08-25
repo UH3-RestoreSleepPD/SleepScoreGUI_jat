@@ -21,7 +21,6 @@ function [] = LW_consensusAnalysis_v2(stagE , dirID)
 mainLOC = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy']; % NeuroWork
 saveDIR = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy\Summary2']; % NeuroWork
 saveDIR3 = [dirID , ':\01_Coding_Datasets\LW_ConsensusStudy\Summary3']; % NeuroWork
-saveDirFc = [dirID   , ':\01_Coding_Datasets\LW_ConsensusStudy\SummaryF'];
 
 switch stagE
     case 1 % extract initial scores
@@ -214,17 +213,8 @@ switch stagE
             disp(['Subject ',num2str(fi), ' done!'])
         end
 
-        nightLIST = nightLIST(cellfun(@(x) ~isempty(x), nightLIST));
-        conff2 = tmpDat2(cellfun(@(x) ~isempty(x), tmpDat2));
-        finalConfL = [conff1 , conff2];
-        finalNlist = [allLIST , nightLIST];
-
-        % Save location
-        cd(saveDirFc)
-        % Save name
-        saveName = 'finalReview.mat';
-        % Save
-        save(saveName,"finalConfL","finalNlist");
+        Test = 1;
+        nightLIST = nightLIST(cellfun(@(x) ))
 
 
 
