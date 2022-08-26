@@ -2,7 +2,7 @@ function [dataTable] = LW_generateStatstab()
 
 % 3way anova by rater and timepoint for stage count
 
-cd('J:\01_Coding_Datasets\LW_ConsensusStudy\SummaryF')
+cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
 
 % Load Initial data
 load("InitialReview.mat","allLIST","initialDat");
