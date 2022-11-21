@@ -55,12 +55,13 @@ end
 % end
 close(outputVideo);
 
-oldLOC =  [vidLOC , filesep , outputVideo];
+outVidn = 'newvideo.mp4.avi';
+oldLOC =  [vidLOC , filesep , outVidn];
 saveDIR = [vidLOC , filesep , 'FullNight'];
 if ~exist(saveDIR, 'dir')
     mkdir(saveDIR)
 end
-newLOC =  [saveDIR , filesep , outputVideo];
+newLOC =  [saveDIR , filesep , outVidn];
 movefile(oldLOC , newLOC)
 
 
