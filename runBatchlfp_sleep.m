@@ -8,6 +8,8 @@ for ci = 1:length(caseES)
 
 
 
+    
+
 
     batchProcessLFPconvert(caseES{ci},'psg')
     batchProcessLFPconvert(caseES{ci},'lfpNF')
