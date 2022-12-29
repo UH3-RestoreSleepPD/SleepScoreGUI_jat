@@ -6,14 +6,8 @@ caseES = {'UNMC_21','UNMC_20','UNMC_22'};
 
 for ci = 1:length(caseES)
 
-
-
-    
-
-
     batchProcessLFPconvert(caseES{ci},'psg')
     batchProcessLFPconvert(caseES{ci},'lfpNF')
-
 
 end
 
