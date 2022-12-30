@@ -111,25 +111,38 @@ for fi = 1:length(folddir3)
 end
 
 %%
+% Day ID = 'UPEN_1_1
+rowID = 39;
+finalNlist(rowID)
+%%
+
+userID = 'MS';
+
+fxCol = TT.FINALSCORE;
+
+sum(cellfun(@(x) isempty(x), fxCol))
+
+finalConfL{1,rowID}.(userID) = fxCol;
+
+%%
 
 up3_1 = TT(:,17:20);
-up3_1.CK = [];
 up3_1.LW = [];
+up3_1.CK = [];
 up3_1.MS = TT.FINALSCORE;
 
 %%
 
 up3_2 = TT(:,17:20);
-up3_2.CK = [];
 up3_2.LW = [];
+up3_2.CK = [];
 up3_2.MS = TT.FINALSCORE;
-
 
 %%
 
 up3_3 = TT(:,17:20);
-up3_3.CK = [];
 up3_3.LW = [];
+up3_3.CK = [];
 up3_3.MS = TT.FINALSCORE;
 
 %%
@@ -153,13 +166,25 @@ finalNlist{45} = 'UPEN_3_3';
 
 %% 
 
+todo = 'i';
+switch todo
+
+    case 'i'
+        datAOI = initialDat;
+        datEOI = allLIST;
+
+    case 'f'
+        datAOI = finalConfL;
+        datEOI = finalNlist;
+end
+
 cAll = nan(200,1);
 cCount = 1;
 cName = cell(200,1);
 scName = cell(200,1);
-for fii = 1:length(finalConfL)
+for fii = 1:length(datAOI)
 
-    tmpC = finalConfL{fii};
+    tmpC = datAOI{fii};
 
     numC = width(tmpC);
 
@@ -167,7 +192,7 @@ for fii = 1:length(finalConfL)
         tmpN = table2cell(tmpC(:,ni));
         fracM = (sum(cellfun(@(x) isempty(x), tmpN)) / length(tmpN))*100;
         cAll(cCount) = fracM;
-        cName{cCount} = finalNlist{fii};
+        cName{cCount} = datEOI{fii};
         tmpNN = tmpC(:,ni);
         tmpNN1 = tmpNN.Properties.VariableNames;
         scName{cCount} = tmpNN1{1};
@@ -181,7 +206,7 @@ scName = scName(cellfun(@(x) ~isempty(x), scName));
 
 outTable = table(cName, scName, cAll, 'VariableNames',{'IS_Night','Scorer','PercMiss'});
 
-writetable(outTable,'PercentMissing.csv');
+writetable(outTable,'PercentMissingIN.csv');
 
 
 
