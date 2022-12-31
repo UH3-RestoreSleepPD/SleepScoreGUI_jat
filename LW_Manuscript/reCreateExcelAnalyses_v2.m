@@ -272,6 +272,64 @@ finSumS = finSum(fiLi);
 inSumS = inSum(iLi);
 
 % Find rows in finSumS and determine the fraction of endpoints
+inSumAllsrt = [];
+for ini = 1:length(inSum)
+    inSumAllsrt = [inSumAllsrt ; inSumS{ini}];
+end
+
+finSumAllsrt = [];
+for fni = 1:length(finSumS)
+    finSumAllsrt = [finSumAllsrt ; finSumS{fni}];
+end
+
+totalCount = zeros(length(intSSu),1);
+totalper = zeros(length(intSSu),1);
+allBINS = cell(length(intSSu),1);
+for ssi2 = 1:length(intSSu)
+
+    % Get Index for empty epochs both F and I
+    iempt = matches(inSumAllsrt,' ');
+    fempt = matches(finSumAllsrt,' ');
+    keepIND = ~(iempt == 1 | fempt == 1);
+
+    inSumS2 = inSumAllsrt(keepIND);
+    finSumS2 = finSumAllsrt(keepIND);
+
+    ssIind = matches(inSumS2,intSSu{ssi2});
+
+    % All epochs
+    allssEpochs = sum(ssIind);
+    totalCount(ssi2) = allssEpochs;
+    totalper(ssi2) = allssEpochs/length(inSumS2);
+
+    % All fin SS ids
+    allfinIds = finSumS2(ssIind);
+
+    uniFinds = unique(allfinIds);
+    nonSSind = ~matches(uniFinds,intSSu{ssi2});
+    uniFindsNON = uniFinds(nonSSind);
+
+    finIDvec = cell(length(uniFindsNON),1);
+    finIDcount = zeros(length(uniFindsNON),1);
+    for ui = 1:length(uniFindsNON)
+
+        tmpUI = sum(matches(allfinIds,uniFindsNON{ui}));
+        finIDvec{ui} = uniFinds{ui};
+        finIDcount(ui) = tmpUI;
+
+    end
+
+    nonSStot = sum(finIDcount);
+    finIDper = finIDcount/nonSStot;
+
+    tmpTable = table(finIDvec,finIDcount,finIDper,'VariableNames',...
+        {'ChangeSS','Count','Percent'});
+
+    allBINS{ssi2} = tmpTable;
+
+end
+
+% Make the plots
 
 
 

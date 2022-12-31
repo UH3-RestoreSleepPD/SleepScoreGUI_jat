@@ -181,13 +181,13 @@ end
 % Get overall Final Fractions of Sleep states
 finSumAll = [];
 for fni = 1:length(finSum)
-    finSumAll = [finSumAll ; finSum{ini}];
+    finSumAll = [finSumAll ; finSum{fni}];
 end
 fintSSu = {'W';'N1';'N2';'N3';'R';'U'};
 % Get overall Final Fractions of Sleep states
-finiSSf = zeros(length(intSSu),1);
-for iniS = 1:length(intSSu)
-    iniSSf(iniS) = sum(matches(inSumAll,intSSu{iniS})) / length(inSumAll);
+finiSSf = zeros(length(fintSSu),1);
+for finiS = 1:length(fintSSu)
+    finiSSf(finiS) = sum(matches(finSumAll,fintSSu{finiS})) / length(finSumAll);
 end
 
 colorMap = [255, 200, 44;
@@ -198,30 +198,32 @@ colorMap = [255, 200, 44;
     0, 0, 0];
 colorMPrgb = colorMap/255;
 
-x = categorical({'Initial'});
-y = transpose(iniSSf);
-b = bar(x,y,"stacked");
+% Create Stacked bar chart with plasma color scheme
+
+y = [transpose(iniSSf) ; transpose(finiSSf)];
+b = bar(y,"stacked");
+xticklabels(["Initial","Final"]);
 % b.CData(2,:) = [.5 0 .5];
 for bi = 1:6
     b(bi).FaceAlpha = 0.3;
     b(bi).FaceColor = colorMPrgb(bi,:);
 end
-b(1).BarWidth = 0.25;
+b(1).BarWidth = 0.45;
 
-allBs = zeros(length(iniSSf),3);
+iniallBs = zeros(length(iniSSf),3);
 for si = 1:length(iniSSf)
     if si == 1
-        allBs(si,1) = 0;
-        allBs(si,3) = iniSSf(si);
-        allBs(si,2) = ((allBs(si,3) - allBs(si,1))/2) + allBs(si,1);
+        iniallBs(si,1) = 0;
+        iniallBs(si,3) = iniSSf(si);
+        iniallBs(si,2) = ((iniallBs(si,3) - iniallBs(si,1))/2) + iniallBs(si,1);
     elseif si == length(iniSSf)
-        allBs(si,1) = allBs(si-1,1) + iniSSf(si - 1);
-        allBs(si,3) = 1;
-        allBs(si,2) = ((allBs(si,3) - allBs(si,1))/2) + allBs(si,1);
+        iniallBs(si,1) = iniallBs(si-1,1) + iniSSf(si - 1);
+        iniallBs(si,3) = 1;
+        iniallBs(si,2) = ((iniallBs(si,3) - iniallBs(si,1))/2) + iniallBs(si,1);
     else
-        allBs(si,1) = allBs(si-1,1) + iniSSf(si - 1);
-        allBs(si,3) = allBs(si-1,3) + iniSSf(si);
-        allBs(si,2) = ((allBs(si,3) - allBs(si,1))/2) + allBs(si,1);
+        iniallBs(si,1) = iniallBs(si-1,1) + iniSSf(si - 1);
+        iniallBs(si,3) = iniallBs(si-1,3) + iniSSf(si);
+        iniallBs(si,2) = ((iniallBs(si,3) - iniallBs(si,1))/2) + iniallBs(si,1);
     end
 end
 
@@ -229,17 +231,98 @@ hold on
 
 for li = 1:6
 
-    line([0.5 1],[allBs(li,2) allBs(li,2)],'Color',colorMPrgb(li,:),'LineWidth',1)
-    text(0.48,allBs(li,2),[intSSu{li},': ' , num2str(round(iniSSf(li)*100,1)),'%'],...
+    line([0.5 1],[iniallBs(li,2) iniallBs(li,2)],'Color',colorMPrgb(li,:),'LineWidth',1)
+    text(0.48,iniallBs(li,2),[intSSu{li},': ' , num2str(round(iniSSf(li)*100,1)),'%'],...
         'HorizontalAlignment','right','VerticalAlignment','middle',...
         'Color',colorMPrgb(li,:),'FontWeight','bold')
-
-
 end
 
-% Create Stacked bar chart with plasma color scheme
+
+finiallBs = zeros(length(finiSSf),3);
+for si = 1:length(finiSSf)
+    if si == 1
+        finiallBs(si,1) = 0;
+        finiallBs(si,3) = finiSSf(si);
+        finiallBs(si,2) = ((finiallBs(si,3) - finiallBs(si,1))/2) + finiallBs(si,1);
+    elseif si == length(finiSSf)
+        finiallBs(si,1) = finiallBs(si-1,1) + finiSSf(si - 1);
+        finiallBs(si,3) = 1;
+        finiallBs(si,2) = ((finiallBs(si,3) - finiallBs(si,1))/2) + finiallBs(si,1);
+    else
+        finiallBs(si,1) = finiallBs(si-1,1) + finiSSf(si - 1);
+        finiallBs(si,3) = finiallBs(si-1,3) + finiSSf(si);
+        finiallBs(si,2) = ((finiallBs(si,3) - finiallBs(si,1))/2) + finiallBs(si,1);
+    end
+end
+
+for li = 1:6
+
+    line([2 2.5],[finiallBs(li,2) finiallBs(li,2)],'Color',colorMPrgb(li,:),'LineWidth',1)
+    text(2.52,finiallBs(li,2),[fintSSu{li},': ' , num2str(round(finiSSf(li)*100,1)),'%'],...
+        'HorizontalAlignment','left','VerticalAlignment','middle',...
+        'Color',colorMPrgb(li,:),'FontWeight','bold')
+end
 
 
+
+% Loop through each Stage in inSumS
+[finLS,fiLi] = sort(finalList);
+finSumS = finSum(fiLi);
+[inLS,iLi] = sort(initialList);
+inSumS = inSum(iLi);
+
+% Find rows in finSumS and determine the fraction of endpoints
+inSumAllsrt = [];
+for ini = 1:length(inSum)
+    inSumAllsrt = [inSumAllsrt ; inSumS{ini}];
+end
+
+finSumAllsrt = [];
+for fni = 1:length(finSumS)
+    finSumAllsrt = [finSumAllsrt ; finSumS{fni}];
+end
+
+totalCount = zeros(length(intSSu),1);
+totalper = zeros(length(intSSu),1);
+allBINS = 
+for ssi2 = 1:length(intSSu)
+
+    % Get Index for empty epochs both F and I
+    iempt = matches(inSumAllsrt,' ');
+    fempt = matches(finSumAllsrt,' ');
+    keepIND = ~(iempt == 1 | fempt == 1);
+
+    inSumS2 = inSumAllsrt(keepIND);
+    finSumS2 = finSumAllsrt(keepIND);
+
+    ssIind = matches(inSumS2,intSSu{ssi2});
+
+    % All epochs
+    allssEpochs = sum(ssIind);
+    totalCount(ssi2) = allssEpochs;
+    totalper(ssi2) = allssEpochs/length(inSumS2);
+
+    % All fin SS ids
+    allfinIds = finSumS2(ssIind);
+
+    uniFinds = unique(allfinIds);
+    nonSSind = ~matches(uniFinds,intSSu{ssi2});
+    uniFindsNON = uniFinds(nonSSind);
+
+    finIDvec = cell(length(uniFindsNON),1);
+    finIDcount = zeros(length(uniFindsNON),1);
+    for ui = 1:length(uniFindsNON)
+
+        tmpUI = sum(matches(allfinIds,uniFindsNON{ui}));
+        finIDvec{ui} = uniFinds{ui};
+        finIDcount(ui) = tmpUI;
+
+    end
+
+    nonSStot = sum(finIDcount);
+    finIDper = finIDcount/nonSStot;
+
+end
 
 
 
