@@ -1,5 +1,5 @@
-cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material')
-
+% cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material')
+cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material')
 %%
 
 % dataTab = readtable('DataForAnalysis.xlsx');
@@ -71,6 +71,8 @@ nPerTab.Instu = allInts;
 % 
 % end
 
+%%
+
 for yi = 1:height(nPerTab)
     nPerTab.Ylab{yi} = ['S',num2str(nPerTab.Sub(yi)),'_',...
         nPerTab.Instu{yi},'_N',num2str(nPerTab.nightN(yi))];
@@ -109,6 +111,7 @@ axis square
 % end
 
 % Clean up original datatab
+%%
 
 dataTabGGa = dataTab;
 % dataTabGGa = dataTabGGa(:,[1,2,4,5]);

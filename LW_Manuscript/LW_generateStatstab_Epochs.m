@@ -1,4 +1,4 @@
-function [dataTable] = LW_generateStatstab()
+function [dataTable] = LW_generateStatstab_Epochs()
 
 % 3way anova by rater and timepoint for stage count
 
