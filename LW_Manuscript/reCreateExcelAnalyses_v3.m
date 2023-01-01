@@ -161,7 +161,7 @@ axis square
 % Clean up original datatab
 
 
-%% Transition stack plot
+%% Transition stack plots
 
 cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
 load('Final_InitialAgreementRaw.mat','finSum','finalList','inSum','initialList')
@@ -198,8 +198,8 @@ colorMap = [255, 200, 44;
     0, 0, 0];
 colorMPrgb = colorMap/255;
 
-% Create Stacked bar chart with plasma color scheme
-
+% ALL DATA PLOT
+figure;
 y = [transpose(iniSSf) ; transpose(finiSSf)];
 b = bar(y,"stacked");
 xticklabels(["Initial","Final"]);
@@ -263,8 +263,7 @@ for li = 1:6
         'Color',colorMPrgb(li,:),'FontWeight','bold')
 end
 
-
-
+% CREATE SORTED FILES
 % Loop through each Stage in inSumS
 [finLS,fiLi] = sort(finalList);
 finSumS = finSum(fiLi);
@@ -273,7 +272,7 @@ inSumS = inSum(iLi);
 
 % Find rows in finSumS and determine the fraction of endpoints
 inSumAllsrt = [];
-for ini = 1:length(inSum)
+for ini = 1:length(inSumS)
     inSumAllsrt = [inSumAllsrt ; inSumS{ini}];
 end
 
@@ -281,6 +280,62 @@ finSumAllsrt = [];
 for fni = 1:length(finSumS)
     finSumAllsrt = [finSumAllsrt ; finSumS{fni}];
 end
+
+% Individual subjects plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%figure
+figure;
+% Subject 3 and 6
+% Get Bar data 
+[iniBar_s3 , finBar_s3, iniC_s3, finC_s3] = getIndivBarData(3 , inLS, inSumS , finSumS , fintSSu);
+
+t1 = tiledlayout(1,2);
+
+nexttile
+
+bi3 = bar(iniBar_s3,"stacked");
+xticklabels(["Night 1","Night 2", "Night 3"]);
+% b.CData(2,:) = [.5 0 .5];
+for bi = 1:6
+    bi3(bi).FaceAlpha = 0.5;
+    bi3(bi).FaceColor = colorMPrgb(bi,:);
+    bi3(bi).EdgeColor = 'none';
+end
+bi3(1).BarWidth = 1;
+xline(1.5)
+xline(2.5)
+subtitle('Subject 3 - Initial Review')
+axi3 = gca;
+axi3.TitleHorizontalAlignment = 'left';
+ylabel('Fraction of sleep stage')
+yticks([0 0.25 0.5 0.75 1])
+axis square
+
+nexttile
+
+bf3 = bar(finBar_s3,"stacked");
+xticklabels(["Night 1","Night 2", "Night 3"]);
+% b.CData(2,:) = [.5 0 .5];
+for bi = 1:6
+    bf3(bi).FaceAlpha = 0.5;
+    bf3(bi).FaceColor = colorMPrgb(bi,:);
+    bf3(bi).EdgeColor = 'none';
+end
+bf3(1).BarWidth = 1;
+xline(1.5)
+xline(2.5)
+subtitle('Subject 3 - Final Review')
+axf3 = gca;
+axf3.TitleHorizontalAlignment = 'left';
+ylabel('Fraction of sleep stage')
+yticks([0 0.25 0.5 0.75 1])
+axis square
+
+t.TileSpacing = 'compact';
+t.Padding = 'compact';
+
+finINchange_s3 = finC_s3 - iniC_s3;
+generateIndivEpochChangePlot(finINchange_s3,colorMPrgb, 3)
+
+% Group subject plots
 
 totalCount = zeros(length(intSSu),1);
 totalper = zeros(length(intSSu),1);
@@ -425,129 +480,77 @@ xticklabels(categorical(intSSu(fnonSSind)));
 ylabel("Number of epochs converted to undecided")
 
 
-%%
+%% Timeline plot
 
-dataTabGGa = dataTab;
-% dataTabGGa = dataTabGGa(:,[1,2,4,5]);
+% loop through subjects starting with Initial
+% inSumS % finSumS
+sleepStarInd = zeros(length(inSumS),1);
+for iii = 1:length(inSumS)
 
-% Break up subject and night
-for sni2 = 1:height(dataTabGGa)
-    tmpRow = dataTabGGa.CaseID{sni2};
-    tmpParts = split(tmpRow,{'_','.'});
-    patNUM = [tmpParts{1},tmpParts{2}];
-    nightNUM = tmpParts{3};
-    dataTabGGa.SubA{sni2} = patNUM;
-    dataTabGGa.Sub{sni2} = tmpParts{1};
-    dataTabGGa.night{sni2} = nightNUM;
-end
+    % Get index for the start of contiguous sleep block (5 min = 10 epochs)
+    tmpINsub = inSumS{iii};
 
-uniSUBS = unique(dataTabGGa.SubA);
-for ui = 1:length(uniSUBS)
+    sleepStC = 0;
+    for eii = 1:length(tmpINsub)
 
-    tmpUNI = uniSUBS{ui};
-    dataTabGGa.Sub(matches(dataTabGGa.SubA,tmpUNI)) = {num2str(ui)};
+        tmpEpochei = tmpINsub{eii};
+        if matches(tmpEpochei,{'N1','N2','N3','R'})
+            sleepStC = sleepStC + 1;
+        else
+            sleepStC = 0;
+        end
 
-end
-
-intiLOCs = matches(dataTabGGa.StageID,'I');
-dataTabGGa.SubIC = num2cell(num2str(zeros(height(dataTabGGa),1)));
-dataTabGGa.SubIC(intiLOCs) = cellfun(@(x) num2str(x), transpose(num2cell(1:sum(intiLOCs))),...
-    "UniformOutput",false);
-conFLocs = matches(dataTabGGa.StageID,'F');
-dataTabGGa.SubIC(conFLocs) = cellfun(@(x) num2str(x), transpose(num2cell(1:sum(conFLocs))),...
-    "UniformOutput",false);
-% dataTabGGa = dataTabGGa(:,[1,2,4,5,6,7]);
-
-dataTabGGa.StageID(matches(dataTabGGa.StageID,"F")) = {'Final'};
-dataTabGGa.StageID(matches(dataTabGGa.StageID,"I")) = {'Initial'};
-
-
-%%
-allTable = table;
-for ci = 1:3
-
-    switch ci
-        case 1 % Consensus
-
-            tmpTTable = dataTabGGa(:,[2,5]); % ADD CASEID
-%             tmpTTable.StageID = replace(tmpTTable.StageID,'ConsensusF','Final');
-            tmpTTable.x = repmat({'Consensus'},height(tmpTTable),1);
-            tmpTTable = renamevars(tmpTTable,["Count","StageID"],["Freq","Stratum"]);
-            tmpTTable.Cohort = transpose(1:height(tmpTTable));
-
-        case 2 % Night
-
-            tmpTTable = dataTabGGa(:,[2,8]);
-            tmpTTable.x = repmat({'Night'},height(tmpTTable),1);
-            tmpTTable = renamevars(tmpTTable,["Count","night"],["Freq","Stratum"]);
-            tmpTTable.Cohort = transpose(1:height(tmpTTable));
-
-        case 3 % Stage
-
-            tmpTTable = dataTabGGa(:,[2,1]);
-            tmpTTable.x = repmat({'Stage'},height(tmpTTable),1);
-            tmpTTable = renamevars(tmpTTable,["Count","Stage"],["Freq","Stratum"]);
-            tmpTTable.Cohort = transpose(1:height(tmpTTable));
-
+        if sleepStC >= 5
+            disp(['INDEX found! ', num2str(eii-4)])
+            sleepStarInd(iii) = eii - 4;
+            break
+        end
 
     end
-allTable = [allTable ; tmpTTable];
+end
+
+
+% Loop through all cases and for each - select from 5 mins minus start and
+% determine how many steps have changed
+
+for ifi = 1:length(inSumS)
+
+    beginIND = sleepStarInd(ifi) - 10;
+    iniTEMP = inSumS{ifi}(beginIND:end);
+    fniTEMP = finSumS{ifi}(beginIND:end);
+
+
+
+
 
 
 
 end
 
-%%
-
-cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\alluvialTEST\12302022\')
-
-% Save out for sankey plot in R
-writetable(nPerTab,'subjectSankey.csv')
-writetable(allTable,'subjectAlluvial.csv')
-writetable(dataTabGGa,'subjectAlluvial2.csv')
-
-% Subtract Final from Initial
-% Create table - remove U
-dataTabNU = dataTab(~matches(dataTab.Stage,'U'),:);
-dataTabNU_F = dataTabNU(matches(dataTabNU.StageID,'F'),:);
-dataTabNU_I = dataTabNU(matches(dataTabNU.StageID,'I'),:);
-dataTabnuFdI = dataTabNU_I(:,{'Stage','CaseID'});
-
-stageAll = cell(height(dataTabnuFdI),1);
-caseAll = cell(height(dataTabnuFdI),1);
-fper = zeros(height(dataTabnuFdI),1);
-iper = zeros(height(dataTabnuFdI),1);
-dper = zeros(height(dataTabnuFdI),1);
-for sI = 1:height(dataTabnuFdI)
-
-    tmpCaseF = dataTabNU_F.CaseID{sI};
-    caseTABF = dataTabNU_F(matches(dataTabNU_F.CaseID,tmpCaseF),:);
-    caseTABI = dataTabNU_I(matches(dataTabNU_I.CaseID,tmpCaseF),:);
-
-    tmpStage = dataTabNU_F.Stage{sI};
-    stageTF = caseTABF.Percent(matches(caseTABF.Stage,tmpStage),:);
-    stageTI = caseTABI.Percent(matches(caseTABI.Stage,tmpStage),:);
-
-    stageAll{sI} = tmpStage;
-    caseAll{sI} = tmpCaseF;
-    fper(sI) = stageTF;
-    iper(sI) = stageTI;
-    dper(sI) = stageTF - stageTI;
-
-end
-
-% dataTabnuFdI.F = dataTabNU_F.Percent;
-% dataTabnuFdI.I = dataTabNU_I.Percent;
-% dataTabnuFdI.Diff = dataTabNU_F.Percent - dataTabNU_I.Percent;
-
-perTableStage = table(caseAll,stageAll,fper,iper,dper,'VariableNames',...
-    {'CaseID','StageID','Final','Initial','Differ'});
-
-gpSum = groupsummary(perTableStage,'StageID','mean','Differ');
-
-
-save('finalSummaryCon.mat','perTableStage','gpSum')
 
 
 
-% 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
