@@ -133,11 +133,8 @@ yticks(1:height(sNperTab))
 
 subID = extractBefore(sNperTab.Ylab,'_');
 nightID = extractAfter(extractAfter(sNperTab.Ylab,'_'),'_');
-
 sNperTab.Ylab2 = cellfun(@(x,y) [x , ' ' , y], subID, nightID, 'UniformOutput', false);
-
 yticklabels(flipud(sNperTab.Ylab2));
-
 ax = gca;
 ax.TickLabelInterpreter = 'none';
 
@@ -148,17 +145,112 @@ xlabel('Percent of consensus epochs')
 ylabel('Subjects and Nights')
 axis square
 
-% % Break up subject and night
-% for sni = 1:height(nPerTab)
-%     tmpRow = nPerTab.Nights{sni};
-%     tmpParts = split(tmpRow,{'_','.'});
-%     patNUM = [tmpParts{1},tmpParts{2}];
-%     nightNUM = str2double(tmpParts{3});
-%     nPerTab.Sub{sni} = patNUM;
-%     nPerTab.night(sni) = nightNUM;
-% end
+%%
 
-% Clean up original datatab
+% Create three plots
+labIDs = flipud(sNperTab.Ylab2);
+nightEX = replace(labIDs,' ','');
+nightEx2 = extractAfter(nightEX,'N');
+subIDs = extractBefore(nightEX,'N');
+
+tiledlayout(3,1)
+nexttile
+
+xValsN1 = xVals(:,matches(nightEx2,'1'));
+yValN1a = width(xValsN1):-1:1;
+yValsN1 = [yValN1a ; yValN1a];
+line(xValsN1,yValsN1,'Color','k')
+hold on
+sctiN1 = sNperTab.Initial(matches(nightEx2,'1'));
+sctfN1 = sNperTab.Final(matches(nightEx2,'1'));
+sctyN1 = transpose(yValN1a);
+colmpN1 = coloRMap(matches(nightEx2,'1'),:);
+scatter(sctiN1,sctyN1,40,colmpN1,'filled')
+scatter(sctfN1,sctyN1,40,"black",'filled')
+xline(mean(sctiN1),'--')
+xline(mean(sctfN1),'-')
+
+yticks(1:height(sctiN1))
+yticklabels(subIDs(matches(nightEx2,'1')));
+subtitle('Night 1')
+ax1 = gca;
+ax1.TickLabelInterpreter = 'none';
+ax1.TitleHorizontalAlignment = 'left';
+
+ylim([0 max(sctyN1)+1])
+xlim([60 100])
+xticks([60 70 80 90 100])
+xlabel('Percent of consensus epochs')
+ylabel('Subjects')
+
+axis square
+
+nexttile % Night 2
+
+nightINDEX = matches(nightEx2,'2');
+xValsN2 = xVals(:,nightINDEX);
+yValN2a = width(xValsN2):-1:1;
+yValsN2 = [yValN2a ; yValN2a];
+line(xValsN2,yValsN2,'Color','k')
+hold on
+sctiN2 = sNperTab.Initial(nightINDEX);
+sctfN2 = sNperTab.Final(nightINDEX);
+sctyN2 = transpose(yValN2a);
+colmpN2 = coloRMap(nightINDEX,:);
+scatter(sctiN2,sctyN2,40,colmpN2,'filled')
+scatter(sctfN2,sctyN2,40,"black",'filled')
+xline(mean(sctiN2),'--')
+xline(mean(sctfN2),'-')
+
+yticks(1:height(sctiN2))
+yticklabels(subIDs(nightINDEX));
+subtitle('Night 2')
+ax2 = gca;
+ax2.TickLabelInterpreter = 'none';
+ax2.TitleHorizontalAlignment = 'left';
+
+ylim([0 max(sctyN2)+1])
+xlim([60 100])
+xticks([60 70 80 90 100])
+xlabel('Percent of consensus epochs')
+ylabel('Subjects')
+
+axis square
+
+nexttile % Night 3
+
+nightINDEX = matches(nightEx2,'3');
+xValsN3 = xVals(:,nightINDEX);
+yValN3a = width(xValsN3):-1:1;
+yValsN3 = [yValN3a ; yValN3a];
+line(xValsN3,yValsN3,'Color','k')
+hold on
+sctiN3 = sNperTab.Initial(nightINDEX);
+sctfN3 = sNperTab.Final(nightINDEX);
+sctyN3 = transpose(yValN3a);
+colmpN3 = coloRMap(nightINDEX,:);
+scatter(sctiN3,sctyN3,40,colmpN3,'filled')
+scatter(sctfN3,sctyN3,40,"black",'filled')
+xline(mean(sctiN3),'--')
+xline(mean(sctfN3),'-')
+
+yticks(1:height(sctiN3))
+yticklabels(subIDs(nightINDEX));
+subtitle('Night 3')
+ax3 = gca;
+ax3.TickLabelInterpreter = 'none';
+ax3.TitleHorizontalAlignment = 'left';
+
+ylim([0 max(sctyN3)+1])
+xlim([60 100])
+xticks([60 70 80 90 100])
+xlabel('Percent of consensus epochs')
+ylabel('Subjects')
+
+axis square
+
+
+set(gcf,'Position',[439 184 773 1109])
 
 
 %% Transition stack plots
@@ -263,7 +355,13 @@ for li = 1:6
         'Color',colorMPrgb(li,:),'FontWeight','bold')
 end
 
-% CREATE SORTED FILES
+
+axis square
+
+
+
+
+%% CREATE SORTED FILES
 % Loop through each Stage in inSumS
 [finLS,fiLi] = sort(finalList);
 finSumS = finSum(fiLi);
@@ -285,9 +383,10 @@ end
 figure;
 % Subject 3 and 6
 % Get Bar data 
-[iniBar_s3 , finBar_s3, iniC_s3, finC_s3] = getIndivBarData(3 , inLS, inSumS , finSumS , fintSSu);
-
-t1 = tiledlayout(1,2);
+subNUM = 6;
+[iniBar_s3 , finBar_s3, iniC_s3, finC_s3] = getIndivBarData(subNUM , inLS, inSumS , finSumS , fintSSu);
+subTITLE = ['Subject ',num2str(subNUM)];
+t1 = tiledlayout(1,3);
 
 nexttile
 
@@ -302,7 +401,7 @@ end
 bi3(1).BarWidth = 1;
 xline(1.5)
 xline(2.5)
-subtitle('Subject 3 - Initial Review')
+subtitle([subTITLE,' - Initial Review'])
 axi3 = gca;
 axi3.TitleHorizontalAlignment = 'left';
 ylabel('Fraction of sleep stage')
@@ -322,7 +421,7 @@ end
 bf3(1).BarWidth = 1;
 xline(1.5)
 xline(2.5)
-subtitle('Subject 3 - Final Review')
+subtitle([subTITLE,' - Final Review'])
 axf3 = gca;
 axf3.TitleHorizontalAlignment = 'left';
 ylabel('Fraction of sleep stage')
@@ -333,9 +432,10 @@ t.TileSpacing = 'compact';
 t.Padding = 'compact';
 
 finINchange_s3 = finC_s3 - iniC_s3;
-generateIndivEpochChangePlot(finINchange_s3,colorMPrgb, 3)
+nexttile
+generateIndivEpochChangePlot(finINchange_s3,colorMPrgb, subNUM)
 
-% Group subject plots
+%% Group subject plots
 
 totalCount = zeros(length(intSSu),1);
 totalper = zeros(length(intSSu),1);
@@ -399,6 +499,8 @@ for ssi2 = 1:length(intSSu)
             continue;
     end
 end
+%
+
 fnonSSind = ~matches(intSSu,'U');
 % Creat plot for which stages became Us
 % Make the plot
@@ -431,10 +533,9 @@ end
 ylim([0 0.4])
 yticks([0 0.1 0.2 0.3 0.4])
 ylabel("Fraction of undecided converted to consensus")
-
-
 xticklabels(categorical(intSSu(fnonSSind)));
 
+axis square
 
 % ONLY PLOT WHERE U epochs go
 % Make the plot
@@ -476,9 +577,8 @@ for nli = 1:5
 end
 
 xticklabels(categorical(intSSu(fnonSSind)));
-
 ylabel("Number of epochs converted to undecided")
-
+axis square
 
 %% Timeline plot
 
@@ -500,9 +600,9 @@ for iii = 1:length(inSumS)
             sleepStC = 0;
         end
 
-        if sleepStC >= 5
-            disp(['INDEX found! ', num2str(eii-4)])
-            sleepStarInd(iii) = eii - 4;
+        if sleepStC >= 10
+            disp(['INDEX found! ', num2str(eii-9)])
+            sleepStarInd(iii) = eii - 9;
             break
         end
 
@@ -512,21 +612,141 @@ end
 
 % Loop through all cases and for each - select from 5 mins minus start and
 % determine how many steps have changed
-
+allconCkcell = cell(length(inSumS),1);
+allconCkcellnoOFF = cell(length(inSumS),1);
 for ifi = 1:length(inSumS)
 
     beginIND = sleepStarInd(ifi) - 10;
     iniTEMP = inSumS{ifi}(beginIND:end);
     fniTEMP = finSumS{ifi}(beginIND:end);
 
+    % Logical
+    conSenCk = zeros(1,length(fniTEMP),'logical');
+    % What was final stage
+    for checkC = 1:length(fniTEMP)
+
+        conSenCk(checkC) = ~matches(iniTEMP{checkC},fniTEMP{checkC});
+
+    end
+    
+    conSenCkNO = zeros(1,length(finSumS{ifi}),'logical');
+    for checkC = 1:length(finSumS{ifi})
+
+        conSenCkNO(checkC) = ~matches(inSumS{ifi}{checkC},finSumS{ifi}{checkC});
+
+    end
+
+
+    allconCkcell{ifi} = conSenCk;
+    allconCkcellnoOFF{ifi} = conSenCkNO;
+end
+
+
+allconCkcell2 = allconCkcell(sleepStarInd < 900,:);
+allconCkcellnoOFF2 = allconCkcellnoOFF(sleepStarInd < 900,:);
+sleepStarInd2 = sleepStarInd(sleepStarInd< 900);
 
 
 
+% Stack up in an array
+longestcell = max(cellfun(@(x) numel(x), allconCkcell2));
 
+probCCmat = nan(length(allconCkcell2),longestcell);
+for ppi = 1:length(allconCkcell2)
 
+    probCCmat(ppi,1:numel(allconCkcell2{ppi})) = allconCkcell2{ppi};
 
 end
 
+% Stack no offset
+
+longestcellNO = max(cellfun(@(x) numel(x), allconCkcellnoOFF2));
+
+probCCmatNO = nan(length(allconCkcellnoOFF2),longestcellNO);
+for ppi = 1:length(allconCkcellnoOFF2)
+
+    probCCmatNO(ppi,1:numel(allconCkcellnoOFF2{ppi})) = allconCkcellnoOFF2{ppi};
+
+end
+
+numChange = sum(probCCmat,'omitnan');
+numPresent = sum(~isnan(probCCmat));
+
+thirdNightAvail = find(numPresent < 15, 1, 'first');
+binChange = probCCmatNO(:,1:700);
+numChange2 = numChange(1:thirdNightAvail);
+numPresent2 = numPresent(1:thirdNightAvail);
+%%
+figure;
+binChange2 = binChange;
+
+% for bib = 1:length(sleepStarInd2)
+% 
+%     binChange2(bib,sleepStarInd2(bib)) = 10;
+% 
+% end
+
+% imagesc(binChange2);colormap('parula')
+
+for liNe = 1:44
+
+    line([find(binChange2(liNe,:) == 1) ; find(binChange2(liNe,:) == 1)],...
+        [repmat(liNe - 0.5,1, sum(binChange2(liNe,:) == 1));...
+        repmat(liNe + 0.5,1, sum(binChange2(liNe,:) == 1))],'Color',[0.5 0.5 0.5],...
+        'LineWidth',0.5)
+
+    hold on
+
+    line([sleepStarInd2(liNe) ; sleepStarInd2(liNe)],...
+        [repmat(liNe - 0.5,1,1);...
+        repmat(liNe + 0.5,1,1)],'Color','r','LineWidth',1.5)
+end
+
+axis square
+yticks(1:2:44)
+ylabel('Subject/Night #')
+xticks([1 175 350 525 700])
+xlabel('Epoch #')
+text(3,44,'| Start of sleep onset','Color','r')
+
+%%
+
+figure;
+probChange = numChange2./numPresent2;
+
+plot(probChange,'Color',[0.7176 0.2745 1.0000],'LineWidth',2)
+xline(10,'-', 'Start of sleep onset')
+yline(mean(probChange),'-','Mean fraction of epochs with disagreement')
+xlim([1 300])
+ylabel('Fraction of nights epoch changed with consensus')
+xlabel('Epoch #: aligned for all nights by first contiguous 5 minutes of sleep')
+
+axis square
+
+%% Sanity check don't align and look for dead zones at sleep onset
+
+for ifi = 6
+
+    beginIND = sleepStarInd2(ifi);
+    iniTEMP = inSumS{ifi};
+    fniTEMP = finSumS{ifi};
+
+    % Logical
+    conSenCk = zeros(1,length(fniTEMP),'logical');
+    % What was final stage
+    for checkC = 1:length(fniTEMP)
+
+        conSenCk(checkC) = ~matches(iniTEMP{checkC},fniTEMP{checkC});
+
+    end
+
+    plot(conSenCk,'Color',[0.7176 0.2745 1.0000],'LineWidth',1)
+    xlim([1 800])
+    xline(beginIND,'-', 'Start of sleep onset','LineWidth',3,'Color','k')
+    title(num2str(ifi))
+    pause
+
+end
 
 
 
