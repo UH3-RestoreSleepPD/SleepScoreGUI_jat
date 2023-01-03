@@ -1,5 +1,6 @@
 % cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material')
-cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis\')
+% cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis\')
+cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis\')
 %%
 
 % dataTab = readtable('DataForAnalysis.xlsx');
@@ -111,11 +112,11 @@ for coi = 1:height(sNperTab)
         case 'UPENN'
             %             tmpNight = sNperTab.nightN(coi);
             %             coloRMap(coi,:) = upennGrad(tmpNight,:);
-            coloRMap(coi,:) = stanAll;
+            coloRMap(coi,:) = upennAll;
         case 'STAN'
             %             tmpNight = sNperTab.nightN(coi);
             %             coloRMap(coi,:) = stanGrad(tmpNight,:);
-            coloRMap(coi,:) = upennAll;
+            coloRMap(coi,:) = stanAll;
     end
 end
 
@@ -146,32 +147,43 @@ ylabel('Subjects and Nights')
 axis square
 
 %%
-
-% Create three plots
-labIDs = flipud(sNperTab.Ylab2);
-nightEX = replace(labIDs,' ','');
-nightEx2 = extractAfter(nightEX,'N');
-subIDs = extractBefore(nightEX,'N');
-
 tiledlayout(3,1)
 nexttile
 
-xValsN1 = xVals(:,matches(nightEx2,'1'));
+night1tab = sNperTab(ismember(sNperTab.nightN,1),:);
+
+coloRMapN1 = zeros(height(night1tab),3);
+for coi = 1:height(night1tab)
+    tmpInst = night1tab.Instu{coi};
+    switch tmpInst
+        case 'UNMC'
+            coloRMapN1(coi,:) = unmcAll;
+            night1tab.CM{coi} = 'y';
+        case 'UPENN'
+            coloRMapN1(coi,:) = upennAll;
+            night1tab.CM{coi} = 'b';
+        case 'STAN'
+            coloRMapN1(coi,:) = stanAll;
+            night1tab.CM{coi} = 'r';
+    end
+end
+
+xValsN1 = [transpose(night1tab.Initial) ; transpose(night1tab.Final)];
 yValN1a = width(xValsN1):-1:1;
 yValsN1 = [yValN1a ; yValN1a];
 line(xValsN1,yValsN1,'Color','k')
 hold on
-sctiN1 = sNperTab.Initial(matches(nightEx2,'1'));
-sctfN1 = sNperTab.Final(matches(nightEx2,'1'));
+sctiN1 = night1tab.Initial;
+sctfN1 = night1tab.Final;
 sctyN1 = transpose(yValN1a);
-colmpN1 = coloRMap(matches(nightEx2,'1'),:);
+colmpN1 = coloRMapN1;
 scatter(sctiN1,sctyN1,40,colmpN1,'filled')
 scatter(sctfN1,sctyN1,40,"black",'filled')
 xline(mean(sctiN1),'--')
 xline(mean(sctfN1),'-')
 
 yticks(1:height(sctiN1))
-yticklabels(subIDs(matches(nightEx2,'1')));
+yticklabels(flipud(night1tab.Nights));
 subtitle('Night 1')
 ax1 = gca;
 ax1.TickLabelInterpreter = 'none';
@@ -187,27 +199,43 @@ axis square
 
 nexttile % Night 2
 
-nightINDEX = matches(nightEx2,'2');
-xValsN2 = xVals(:,nightINDEX);
+night2tab = sNperTab(ismember(sNperTab.nightN,2),:);
+
+coloRMapN2 = zeros(height(night2tab),3);
+for coi = 1:height(night2tab)
+    tmpInst = night2tab.Instu{coi};
+    switch tmpInst
+        case 'UNMC'
+            coloRMapN2(coi,:) = unmcAll;
+            night2tab.CM{coi} = 'y';
+        case 'UPENN'
+            coloRMapN2(coi,:) = upennAll;
+            night2tab.CM{coi} = 'b';
+        case 'STAN'
+            coloRMapN2(coi,:) = stanAll;
+            night2tab.CM{coi} = 'r';
+    end
+end
+
+xValsN2 = [transpose(night2tab.Initial) ; transpose(night2tab.Final)];
 yValN2a = width(xValsN2):-1:1;
 yValsN2 = [yValN2a ; yValN2a];
 line(xValsN2,yValsN2,'Color','k')
 hold on
-sctiN2 = sNperTab.Initial(nightINDEX);
-sctfN2 = sNperTab.Final(nightINDEX);
+sctiN2 = night2tab.Initial;
+sctfN2 = night2tab.Final;
 sctyN2 = transpose(yValN2a);
-colmpN2 = coloRMap(nightINDEX,:);
-scatter(sctiN2,sctyN2,40,colmpN2,'filled')
+scatter(sctiN2,sctyN2,40,coloRMapN2,'filled')
 scatter(sctfN2,sctyN2,40,"black",'filled')
 xline(mean(sctiN2),'--')
 xline(mean(sctfN2),'-')
 
 yticks(1:height(sctiN2))
-yticklabels(subIDs(nightINDEX));
+yticklabels(flipud(night2tab.Nights));
 subtitle('Night 2')
-ax2 = gca;
-ax2.TickLabelInterpreter = 'none';
-ax2.TitleHorizontalAlignment = 'left';
+ax1 = gca;
+ax1.TickLabelInterpreter = 'none';
+ax1.TitleHorizontalAlignment = 'left';
 
 ylim([0 max(sctyN2)+1])
 xlim([60 100])
@@ -219,23 +247,39 @@ axis square
 
 nexttile % Night 3
 
-nightINDEX = matches(nightEx2,'3');
-xValsN3 = xVals(:,nightINDEX);
+night3tab = sNperTab(ismember(sNperTab.nightN,3),:);
+
+coloRMapN3 = zeros(height(night3tab),3);
+for coi = 1:height(night3tab)
+    tmpInst = night3tab.Instu{coi};
+    switch tmpInst
+        case 'UNMC'
+            coloRMapN3(coi,:) = unmcAll;
+            night3tab.CM{coi} = 'y';
+        case 'UPENN'
+            coloRMapN3(coi,:) = upennAll;
+            night3tab.CM{coi} = 'b';
+        case 'STAN'
+            coloRMapN3(coi,:) = stanAll;
+            night3tab.CM{coi} = 'r';
+    end
+end
+
+xValsN3 = [transpose(night3tab.Initial) ; transpose(night3tab.Final)];
 yValN3a = width(xValsN3):-1:1;
 yValsN3 = [yValN3a ; yValN3a];
 line(xValsN3,yValsN3,'Color','k')
 hold on
-sctiN3 = sNperTab.Initial(nightINDEX);
-sctfN3 = sNperTab.Final(nightINDEX);
+sctiN3 = night3tab.Initial;
+sctfN3 = night3tab.Final;
 sctyN3 = transpose(yValN3a);
-colmpN3 = coloRMap(nightINDEX,:);
-scatter(sctiN3,sctyN3,40,colmpN3,'filled')
+scatter(sctiN3,sctyN3,40,coloRMapN3,'filled')
 scatter(sctfN3,sctyN3,40,"black",'filled')
 xline(mean(sctiN3),'--')
 xline(mean(sctfN3),'-')
 
 yticks(1:height(sctiN3))
-yticklabels(subIDs(nightINDEX));
+yticklabels(flipud(night3tab.Nights));
 subtitle('Night 3')
 ax3 = gca;
 ax3.TickLabelInterpreter = 'none';

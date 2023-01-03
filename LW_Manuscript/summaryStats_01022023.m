@@ -1,6 +1,7 @@
 % Glm negative possion assessment
 
-cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
+% cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
+cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
 load('Final_InitialAgreementRaw.mat')
 
 [finLS,fiLi] = sort(finalList);
@@ -104,13 +105,43 @@ heatmap(tablEE,'SleepSt','ConSt');
 % disp(p)
 
 %% icc
-cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
+
+% loop through subjects starting with Initial
+% inSumS % finSumS
+sleepStarInd = zeros(length(inSumS),1);
+for iii = 1:length(inSumS)
+
+    % Get index for the start of contiguous sleep block (5 min = 10 epochs)
+    tmpINsub = inSumS{iii};
+
+    sleepStC = 0;
+    for eii = 1:length(tmpINsub)
+
+        tmpEpochei = tmpINsub{eii};
+        if matches(tmpEpochei,{'N1','N2','N3','R'})
+            sleepStC = sleepStC + 1;
+        else
+            sleepStC = 0;
+        end
+
+        if sleepStC >= 10
+            disp(['INDEX found! ', num2str(eii-9)])
+            sleepStarInd(iii) = eii - 9;
+            break
+        end
+
+    end
+end
+
+% cd('E:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
+cd('D:\Dropbox\Publications_Meta\InProgress\LWest_ScoreConsensus2022\Extra material\StatsAnalysis')
 load('InitialReview.mat')
 intSSu = {'N1';'N2';'N3';'R'};
 % Get overall Final Fractions of Sleep states
 raterTST = zeros(length(intSSu),4,length(initialDat));
 for iniS = 1:length(initialDat)
     tmpNNight = initialDat{iniS};
+    tmpNNightS = tmpNNight(sleepStarInd(iniS):end,:);
 
     raterS = {'LW','ST','MS','CK'};
     for ri = 1:4
