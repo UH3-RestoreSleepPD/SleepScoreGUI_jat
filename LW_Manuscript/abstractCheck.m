@@ -70,6 +70,18 @@ for iniS = 1:length(intSSu)
 end
 
 
+intSSu = {'W';'N1';'N2';'N3';'R'};
+% Get overall Final Fractions of Sleep states
+ifiniSSc = zeros(length(intSSu),2);
+for iniS = 1:length(intSSu)
+
+    ifiniSSc(iniS,1) = sum(matches(finSumAllsrt,intSSu{iniS}));
+    ifiniSSc(iniS,2) = sum(matches(inSumAllsrt,intSSu{iniS}));
+
+end
+
+
+
 
 
 
