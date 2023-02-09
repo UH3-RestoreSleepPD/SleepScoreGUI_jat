@@ -1,8 +1,11 @@
-function [] = create_actPLOT_RD(subjectID)
+function [] = create_actPLOT_RD(subjectID, preOintra)
 
-
-cd('D:\VRAWLFP\ActigraphyProcessALL\PRE_ACT_ALL')
-
+switch preOintra
+    case 1
+        cd('D:\VRAWLFP\ActigraphyProcessALL\PRE_ACT_ALL')
+    case 2
+        cd('D:\VRAWLFP\ActigraphyProcessALL\INTRA_ACT_ALL')
+end
 cMAP = cividis;
 % [reMAP] = reMapCmap(tmData,cMAP,smSunful,1,'timeBased');
 lightCM = cMAP(246,:);

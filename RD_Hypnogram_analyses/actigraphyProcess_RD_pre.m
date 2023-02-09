@@ -3,12 +3,12 @@ function [] = actigraphyProcess_RD_pre(dirEL)
 mainLOC = dirEL;
 cd(mainLOC)
 
-saveDIR = 'D:\VRAWLFP\ActigraphyProcessALL\PRE_ALL_Mat';
+saveDIR = 'D:\VRAWLFP\ActigraphyProcessALL\INTRA_ALL_Mat';
 
 csvALL = dir('*.csv');
 csvALL2 = {csvALL.name};
 
-for cci = 13:length(csvALL2)
+for cci = 3:length(csvALL2)
 
     csvName = csvALL2{cci};
 
