@@ -6,6 +6,12 @@ function [] = runACCELtestSleep_proc(plottest)
 load("experBlockTrialRaw.mat",'blockSc');
 epochDATA = blockSc;
 
+load("jattimes3.mat",'Acctable');
+allDATA = Acctable;
+
+[xSampleE , ySampleE , zSampleE] = cleanSamples(allDATA);
+
+
 if plottest
     runPLOT(epochDATA)
 end
@@ -16,6 +22,7 @@ blockLENGTHS = [160, 110, 160, 110];
 blockStrT = [49, 39, 49, 39];
 blockEndT = [110, 70, 110, 70];
 
+allblocks = cell(1,4);
 for bxb = 1:4
     blocktemp = epochDATA{bxb};
     % initial peak
@@ -34,9 +41,21 @@ for bxb = 1:4
     % close all
     figure;
     plot(transpose(block1x))
+    allblocks{bxb} = block1x;
 
 
 end
+
+templateWaveform = mean(allblocks{1});
+crossCorrelation = xcorr(xSampleE, templateWaveform);
+
+[peaks, templateOccurrences] = findpeaks(crossCorrelation);
+
+
+figure;
+plot(xSampleE);
+hold on;
+plot(templateOccurrences, repmat(150,size(templateOccurrences)), 'r', 'LineWidth', 2);
 
 end
 
@@ -72,5 +91,20 @@ for bi = 1:length(blockSc)
 end
 
 
+
+end
+
+
+
+
+
+function [xOut, yOut , zOut] = cleanSamples(Acctable)
+
+xOut = Acctable.epsilon{2,1}{:,8};
+xOut = xOut(~isnan(xOut));
+yOut = Acctable.epsilon{2,1}{:,9};
+yOut = yOut(~isnan(yOut));
+zOut = Acctable.epsilon{2,1}{:,10};
+zOut = zOut(~isnan(zOut));
 
 end
