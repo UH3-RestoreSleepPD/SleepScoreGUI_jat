@@ -1,5 +1,5 @@
 % Load the accelerometry data into Matlab
-function [] = runACCELtestSleep_proc(plottest)
+function [] = Accel_PCA(plottest)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
