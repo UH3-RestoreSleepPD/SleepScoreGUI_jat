@@ -42,7 +42,7 @@ useTimeTab = createTABtimes(Acctable , Timezonechange , allTime2);
 % Loop through and create cell array of raw data 3D array
 [outRaw] = extractRAWdata(useTimeTab , GeneratedData);
 
-plotCHECK(outRaw , 4 , useTimeTab)
+plotCHECK(outRaw , 2 , useTimeTab)
 
 
 % Align trials within block
