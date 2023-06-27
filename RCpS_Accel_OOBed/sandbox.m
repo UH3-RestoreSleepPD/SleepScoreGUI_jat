@@ -2,6 +2,27 @@
 % C:\Users\Admin\Downloads\AccelerometerTesting\AccelerometerTesting
 
 
+trialNames = Acctable.Properties.VariableNames;
+
+trialNums = extractAfter(trialNames,'0');
+startStops = extractBefore(trialNames,'0');
+
+trialTypesN = sum(cellfun(@(x) ~isempty(x), table2cell(Acctable(:,1)),...
+    'UniformOutput',true));
+
+allTime = GeneratedData.localTime;
+Timezonechange = allTime.TimeZone;
+
+startTime1 = Acctable.Start01{1,1};
+startTime1.TimeZone = Timezonechange;
+
+[~ , x] = min(abs(allTime - startTime1));
+
+
+
+
+%%
+
 
 
 xSample = Acctable.epsilon{2,1}{:,8};
