@@ -33,10 +33,11 @@ allTime = GeneratedData.localTime;
 Timezonechange = allTime.TimeZone;
 
 %%%% GET TIME VECTOR IN SAME DIMENMSION
-
+tempNAN = ~isnan(GeneratedData.Accel_XSamples);
+allTime2 = allTime(tempNAN);
 
 % Calculate indicies for time offsets for trials/blocks
-useTimeTab = createTABtimes(Acctable , Timezonechange , allTime);
+useTimeTab = createTABtimes(Acctable , Timezonechange , allTime2);
 
 % Loop through and create cell array of raw data 3D array
 [outRaw] = extractRAWdata(useTimeTab , GeneratedData);
