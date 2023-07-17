@@ -1,4 +1,4 @@
-function [] = blockTrialExtract_as(recDataLoc , saveDataLoc)
+function [] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -22,7 +22,7 @@ load(timeFileName,'Acctable');
 % totalNumTrials = numel(unique(trialNums));
 
 % trialTypesN = sum(cellfun(@(x) ~isempty(x), table2cell(Acctable(:,1)),...
-    % 'UniformOutput',true));
+% 'UniformOutput',true));
 
 % Load data file
 load(dataFileName,'GeneratedData');
@@ -42,12 +42,14 @@ useTimeTab = createTABtimes(Acctable , Timezonechange , allTime2);
 % Loop through and create cell array of raw data 3D array
 [outRaw] = extractRAWdata(useTimeTab , GeneratedData);
 
-plotCHECK(outRaw , 2 , useTimeTab)
-
+if plotCheckfl
+    plotCHECK(outRaw , movIDp , useTimeTab)
+end
 
 % Align trials within block
-[alignRaw] = reAlignTrials(outRaw)
-
+if runAlign
+    [alignRaw] = reAlignTrials(outRaw);
+end
 
 
 
@@ -65,7 +67,7 @@ function [outTable] = createTABtimes(inTABLE , inTimeZone , dataTIMES)
 
 tab2celVec = reshape(table2cell(inTABLE),numel(inTABLE),1);
 fillCellC = sum(cellfun(@(x) ~isempty(x), tab2celVec,...
-        'UniformOutput',true));
+    'UniformOutput',true));
 
 % Loop through columns
 moveIDS = 1;
@@ -73,7 +75,7 @@ allCount = 0;
 allTIMES = NaT(fillCellC/2,2);
 allrowNames = cell(fillCellC/2,1);
 
-% REORDER by TRIAL and 
+% REORDER by TRIAL and
 
 for ti = 1:width(inTABLE)
     tmpTabRow = inTABLE(ti,:);
@@ -117,9 +119,9 @@ for rri = 1:height(allTIMES)
     end
 end
 
- tabTimes = array2table(allTIMES,'VariableNames',{'StartTime','StopTime'});
- tabInds = array2table(allTimeINDs,'VariableNames',{'StartInd','StopTInd'});
- tabTrID = table(allrowNames,'VariableNames',{'TrialID'});
+tabTimes = array2table(allTIMES,'VariableNames',{'StartTime','StopTime'});
+tabInds = array2table(allTimeINDs,'VariableNames',{'StartInd','StopTInd'});
+tabTrID = table(allrowNames,'VariableNames',{'TrialID'});
 
 
 outTable = [tabTimes , tabInds , tabTrID];
@@ -137,7 +139,7 @@ function [outRaw] = extractRAWdata(inTABLE , RAWdata)
 outRaw = cell(height(inTABLE),1);
 for ii = 1:height(inTABLE)
 
-    startIND = inTABLE.StartInd(ii); 
+    startIND = inTABLE.StartInd(ii);
     stopIND = inTABLE.StopTInd(ii);
 
     xSample = RAWdata.Accel_XSamples(startIND:stopIND);
@@ -214,26 +216,6 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function [] = plotCHECK(inDATA , moveNUM , inTable)
 
 
@@ -241,7 +223,7 @@ indiciesForMove = contains(extractBefore(inTable.TrialID,'_'),num2str(moveNUM));
 
 tmpDATA = inDATA(indiciesForMove);
 
-for ti = 1:height(tmpDATA) 
+for ti = 1:height(tmpDATA)
 
     tmpX = tmpDATA{ti}(:,1);
     hold on
