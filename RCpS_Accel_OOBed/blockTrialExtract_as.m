@@ -1,9 +1,21 @@
 function [] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
 
 
-cd(recDataLoc)
+arguments
+
+    recDataLoc  (1,:) char     = 'Default'
+    movIDp      (1,:) double   = NaN;
+    plotCheckfl (1,:) logical  = 0
+    runAlign    (1,:) logical  = 0
+
+end
+
+
+if matches(recDataLoc,'Default')
+    cd('C:\Users\Admin\Documents\Github\SleepScoreGUI_jat\RCpS_Accel_OOBed\Thompson_0622\Trial_1')
+else
+    cd(recDataLoc)
+end
 
 matDirall = dir('*.mat');
 matDirnames = {matDirall.name};
@@ -48,7 +60,7 @@ end
 
 % Align trials within block
 if runAlign
-    [alignRaw] = reAlignTrials(outRaw);
+    [alignRaw] = reAlignTrials(outRaw , useTimeTab);
 end
 
 
@@ -120,8 +132,11 @@ for rri = 1:height(allTIMES)
 end
 
 tabTimes = array2table(allTIMES,'VariableNames',{'StartTime','StopTime'});
-tabInds = array2table(allTimeINDs,'VariableNames',{'StartInd','StopTInd'});
-tabTrID = table(allrowNames,'VariableNames',{'TrialID'});
+tabInds = array2table(allTimeINDs,'VariableNames',{'StartIndraw','StopTIndraw'});
+movementIDSall = extractBefore(allrowNames,'_');
+trialIDSall = cellfun(@(x) str2double(extractAfter(extractAfter(x,'_'),'T')),...
+    allrowNames,'UniformOutput',true);
+tabTrID = table(allrowNames, movementIDSall, trialIDSall,'VariableNames',{'FullTrialID','MoveID','TrialID'});
 
 
 outTable = [tabTimes , tabInds , tabTrID];
@@ -139,8 +154,8 @@ function [outRaw] = extractRAWdata(inTABLE , RAWdata)
 outRaw = cell(height(inTABLE),1);
 for ii = 1:height(inTABLE)
 
-    startIND = inTABLE.StartInd(ii);
-    stopIND = inTABLE.StopTInd(ii);
+    startIND = inTABLE.StartIndraw(ii);
+    stopIND = inTABLE.StopTIndraw(ii);
 
     xSample = RAWdata.Accel_XSamples(startIND:stopIND);
     ySample = RAWdata.Accel_YSamples(startIND:stopIND);
@@ -163,7 +178,7 @@ end
 
 
 
-function [outRAW] = reAlignTrials(inRAW)
+function [outRAW] = reAlignTrials(inRAW , inInfoTab)
 
 
 
