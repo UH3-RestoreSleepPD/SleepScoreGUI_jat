@@ -64,7 +64,61 @@ if runAlign
 end
 
 
+[move1_pca] = getPCAloadings(alignRaw , 1); % Standing basline
+[move2_pca] = getPCAloadings(alignRaw , 2); % Standing to Sitting
+[move3_pca] = getPCAloadings(alignRaw , 3); % Sitting to Laying
+[move4_pca] = getPCAloadings(alignRaw , 4); % Standing to Walking 
+% Slice down X Y Z down to event and stack into column vectors
+close all
 
+[pcaCO_12] = comparePCAS(move1_pca , move2_pca); % 1 should be different to 2
+[pcaCO_13] = comparePCAS(move1_pca , move3_pca); % 1 should be different to 3
+[pcaCO_14] = comparePCAS(move1_pca , move4_pca); % 1 should be similar to 4
+[pcaCO_23] = comparePCAS(move2_pca , move3_pca); % 2 should be similar to 3
+[pcaCO_24] = comparePCAS(move2_pca , move4_pca); % 2 should be different from 4
+[pcaCO_34] = comparePCAS(move3_pca , move4_pca); % 3 should be different from 4
+
+
+figure;
+bar([pcaCO_12,...
+     pcaCO_13,...
+     pcaCO_14,...
+     pcaCO_23,...
+     pcaCO_24,...
+     pcaCO_34])
+ylabel('Disparity')
+xticklabels({'Stand vs Sit2Stand',...
+             'Stand vs LieDSit',...
+             'Stand vs Walking',...
+             'Sit2Stand vs LieDSit',...
+             'Sit2Stand vs Walking',...
+             'LieDSit vs Walking'});
+axis square
+
+
+
+
+
+figure;
+plot3(move1_pca.accelDataDBc(:,1),move1_pca.accelDataDBc(:,2),move1_pca.accelDataDBc(:,3),'ko')
+hold on
+text(mean(move1_pca.accelDataDBc(:,1))+10,mean(move1_pca.accelDataDBc(:,2)),...
+    mean(move1_pca.accelDataDBc(:,3)),'STANDING','FontSize',20,'FontWeight','bold','Color','k')
+
+
+plot3(move2_pca.accelDataDBc(:,1),move2_pca.accelDataDBc(:,2),move2_pca.accelDataDBc(:,3),'ro')
+text(mean(move2_pca.accelDataDBc(:,1))+10,mean(move2_pca.accelDataDBc(:,2)),...
+    mean(move2_pca.accelDataDBc(:,3)),'Sit2Stand','FontSize',20,'FontWeight','bold','Color','r')
+
+
+plot3(move3_pca.accelDataDBc(:,1),move3_pca.accelDataDBc(:,2),move3_pca.accelDataDBc(:,3),'go')
+text(mean(move3_pca.accelDataDBc(:,1))+10,mean(move3_pca.accelDataDBc(:,2)),...
+    mean(move3_pca.accelDataDBc(:,3)),'LieDown2Sit','FontSize',20,'FontWeight','bold','Color','g')
+
+
+plot3(move4_pca.accelDataDBc(:,1),move4_pca.accelDataDBc(:,2),move4_pca.accelDataDBc(:,3),'bo')
+text(mean(move4_pca.accelDataDBc(:,1))+10,mean(move4_pca.accelDataDBc(:,2)),...
+    mean(move4_pca.accelDataDBc(:,3)),'Walking','FontSize',20,'FontWeight','bold','Color','b')
 
 
 
@@ -157,17 +211,17 @@ for ii = 1:height(inTABLE)
     startIND = inTABLE.StartIndraw(ii);
     stopIND = inTABLE.StopTIndraw(ii);
 
-    xSample = RAWdata.Accel_XSamples(startIND:stopIND);
-    ySample = RAWdata.Accel_YSamples(startIND:stopIND);
-    zSample = RAWdata.Accel_ZSamples(startIND:stopIND);
+    noneNANrawX = RAWdata.Accel_XSamples(~isnan(RAWdata.Accel_XSamples));
+    noneNANrawY = RAWdata.Accel_YSamples(~isnan(RAWdata.Accel_YSamples));
+    noneNANrawZ = RAWdata.Accel_ZSamples(~isnan(RAWdata.Accel_ZSamples));
+
+    xSample = noneNANrawX(startIND:stopIND);
+    ySample = noneNANrawY(startIND:stopIND);
+    zSample = noneNANrawZ(startIND:stopIND);
 
     finAccelMat = [xSample , ySample , zSample];
 
-    cleanNans = ~isnan(xSample);
-
-    finAccelMatO = finAccelMat(cleanNans,:);
-
-    outRaw{ii} = finAccelMatO;
+    outRaw{ii} = finAccelMat;
 
 end
 
@@ -178,41 +232,149 @@ end
 
 
 
-function [outRAW] = reAlignTrials(inRAW , inInfoTab)
+function [allblocksfinal] = reAlignTrials(inRAW , inInfoTab)
 
+% TRIM by MIN
 
+% Combine and Fix STANDING for 1 minute
 
-%%% FIRST ATTEMPT - Realign based on first peak
-% test block 1
-blockLENGTHS = [160, 110, 160, 110];
-blockStrT = [49, 39, 49, 39];
-blockEndT = [110, 70, 110, 70];
+% BLOCKS equals types of MOVEMENTs
+mUNInum = tabulate(inInfoTab.MoveID);
 
-allblocks = cell(1,4);
-for bxb = 1:4
-    blocktemp = epochDATA{bxb};
+allblocks = cell(3,height(mUNInum));
+for bxb = 1:height(mUNInum)
     % initial peak
-    block1x = zeros(3,blockLENGTHS(bxb));
-    for x3x = 1:3
-        xtemp = blocktemp{x3x}(1,:);
-        xtm = abs(abs(xtemp) - mean(abs(xtemp)));
-        % plot(xtm)
+    tmpMoveID = mUNInum{bxb,1};
+    numTrials = mUNInum{bxb,2};
+    rawDataCell = inRAW(matches(inInfoTab.MoveID,tmpMoveID));
 
-        [~,peakLoc] = findpeaks(xtm,"NPeaks",1,"MinPeakHeight",30);
-        trimStart = peakLoc - blockStrT(bxb);
-        trimEnd = peakLoc + blockEndT(bxb);
-        block1x(x3x,:) = xtm(trimStart:trimEnd);
+    if numel(rawDataCell) > 1
+        blockLENGTHS = max(cellfun(@(x) height(x), rawDataCell, 'UniformOutput',true));
+    else
+        blockLENGTHS = height(rawDataCell{1});
+    end
+
+    block1x = nan(numTrials,blockLENGTHS);
+    block1y = nan(numTrials,blockLENGTHS);
+    block1z = nan(numTrials,blockLENGTHS);
+
+    for x3x = 1:numTrials
+        xtemp = rawDataCell{x3x}(:,1);
+        ytemp = rawDataCell{x3x}(:,2);
+        ztemp = rawDataCell{x3x}(:,3);
+
+        xtm = abs(xtemp - mean(xtemp)) - min(abs(xtemp - mean(xtemp)));
+        % plot(xtm)
+        % plot(xtemp)
+
+        [~,peakLoc] = findpeaks(xtm,"NPeaks",1,"MinPeakHeight",mean(xtm)*1.2);
+        if isempty(peakLoc)
+            trimStart = 1;
+        else
+            trimStart = peakLoc;
+        end
+        trimEnd = length(xtemp);
+        trimLength = numel(trimStart:trimEnd);
+        block1x(x3x,1:trimLength) = transpose(xtemp(trimStart:trimEnd));
+        block1y(x3x,1:trimLength) = transpose(ytemp(trimStart:trimEnd));
+        block1z(x3x,1:trimLength) = transpose(ztemp(trimStart:trimEnd));
     end
 
     % close all
-    figure;
-    plot(transpose(block1x))
-    allblocks{bxb} = block1x;
+    % figure;
+    % plot(transpose(block1x))
+    % allblocks{bxb} = block1x;
 
+    allblocks{1,bxb} = block1x;
+    allblocks{2,bxb} = block1y;
+    allblocks{3,bxb} = block1z;
 
 end
 
+% FIX M1 and M5
+% hold on
+% plot(allblocks{1,5})
+% plot(allblocks{2,5})
+% plot(allblocks{3,5})
+% plot(mean(cell2mat(allblocks(:,5))),'k')
+move1and5 = [1,5];
+tableMat = zeros(2,3);
+for m15 = 1:2
 
+    meanLine = mean(cell2mat(allblocks(:,move1and5(m15))));
+    noMeanLine = meanLine(~isnan(meanLine));
+    rmsThresh = (rms(noMeanLine)*0.1) + rms(noMeanLine);
+
+    startI = 1;
+    stopI = 5;
+    stePSize = 5;
+    stePNum = floor(length(noMeanLine)/stePSize);
+    stepIds = zeros(1,stePNum);
+    allRMS = zeros(1,stePNum);
+    for si = 1:stePNum
+
+        tmpRMS = rms(noMeanLine(startI:stopI));
+        allRMS(si) = tmpRMS;
+        if tmpRMS > rmsThresh
+            stepIds(si) = 1;
+        end
+
+        startI = startI + stePSize;
+        stopI = stopI + stePSize;
+
+    end
+
+    offsetThresh = diff(stepIds);
+    numOffset = sum(numel(find(offsetThresh)));
+    if numOffset > 5
+        firstStable = find(stepIds,1,'first') * stePSize;
+        lastStable = find(stepIds,1,'last') * stePSize;
+        % plot(noMeanLine(firstStable:lastStable))
+
+        tableMat(m15,1) = firstStable;
+        tableMat(m15,2) = lastStable;
+        tableMat(m15,3) = length(firstStable:lastStable);
+
+    else
+        offsetLOCS = find(offsetThresh);
+        offSETfracs = offsetLOCS/stePNum;
+        if max(offSETfracs) < 0.2
+            firstStable = max(offsetLOCS) * stePSize;
+            lastStable = stePNum*stePSize;
+            % plot(noMeanLine(firstStable:end));
+        else
+            firstStable = 1;
+            lastStable = min(offsetLOCS) * stePSize;
+            % plot(noMeanLine(1:lastStable))
+        end
+
+        tableMat(m15,1) = firstStable;
+        tableMat(m15,2) = lastStable;
+        tableMat(m15,3) = length(firstStable:lastStable);
+
+    end
+
+end
+
+m15Infotab = array2table(tableMat,'VariableNames',{'startIND','stopIND','Numels'});
+
+[minLENGTH , ~] = min(m15Infotab.Numels);
+
+bothBlocks = cell(3,2);
+for bii = 1:2
+    tmpBlock = allblocks(:,move1and5(bii));
+    startINDi = m15Infotab.startIND(bii);
+    stopINDi = startINDi + minLENGTH;
+    tmpBlockt = cellfun(@(x) x(startINDi:stopINDi) , tmpBlock, 'UniformOutput' , false);
+    bothBlocks(:,bii) = tmpBlockt;
+end
+
+combineBlocks = cellfun(@(x,y) [x ; y], bothBlocks(:,1) , bothBlocks(:,2),...
+    'UniformOutput' , false);
+
+allblocksfinal = cell(3,4);
+allblocksfinal(:,1) = combineBlocks;
+allblocksfinal(:,2:4) = allblocks(:,2:4);
 
 
 end
@@ -247,3 +409,97 @@ for ti = 1:height(tmpDATA)
 end
 
 end
+
+
+
+
+
+
+
+
+
+function [pcaOUTdata] = getPCAloadings(allBLOCKs , movementNUM)
+% Assuming accelData is your matrix with three columns (X, Y, Z)
+
+% Convert to X , Y , Z - with 3 trials along rows
+
+tempBlOCK = allBLOCKs(:,movementNUM);
+
+Xaccel = reshape(transpose(tempBlOCK{1}),numel(tempBlOCK{1}),1);
+Yaccel = reshape(transpose(tempBlOCK{2}),numel(tempBlOCK{2}),1);
+Zaccel = reshape(transpose(tempBlOCK{3}),numel(tempBlOCK{3}),1);
+
+accelData = [Xaccel , Yaccel , Zaccel];
+
+accelDataNan = accelData(~isnan(accelData(:,1)),:);
+
+pdistAll = zeros(height(accelDataNan),1);
+for pi = 1:height(accelDataNan)
+
+    D = pdist2(accelDataNan(pi,:),accelDataNan);
+
+    minD = min(D(D ~= 0));
+    pdistAll(pi) = minD;
+end
+
+pdistALLs = sort(pdistAll,'descend');
+plot(pdistALLs)
+
+%%%% THIS WORKS for 1 and 2
+epsilon = mean(pdistALLs,'omitnan') + (std(pdistALLs,'omitnan'));
+
+if numel(pdistALLs) < 100
+    numGroupMems = 5;
+else
+    numGroupMems = 15;
+end
+
+% close all
+idx_DBSCAN = dbscan(accelDataNan,epsilon,numGroupMems); 
+% gscatter(accelData(:,1),accelData(:,2),idx);
+% plot3(accelData(:,1),accelData(:,2),accelData(:,3),'k.')
+% hold on
+% plot3(accelData(idx == 1,1),accelData(idx == 1,2),accelData(idx == 1,3),'r.')
+% tabulate(idx)
+% title('DBSCAN Using Euclidean Distance Metric')
+% Standardize the data to have zero mean and unit variance
+tabtab = tabulate(idx_DBSCAN);
+% extractNon-1 
+clusterTab = tabtab(tabtab(:,1) ~= -1,:);
+% find max ID
+[~, maxRow] = max(clusterTab(:,2));
+maxID = clusterTab(maxRow,1);
+
+accelDATA_dbscan = accelDataNan(idx_DBSCAN == maxID,:);
+accelData_standardized = zscore(accelDATA_dbscan);
+
+% Perform PCA
+[coeff,score,~,~,explained] = pca(accelData_standardized);
+
+pcaOUTdata.movNum = movementNUM;
+pcaOUTdata.accelData = accelDataNan;
+pcaOUTdata.accelDataDBc = accelDATA_dbscan;
+pcaOUTdata.loading = coeff;
+pcaOUTdata.score = score;
+pcaOUTdata.explained = explained;
+
+% The output 'coeff' contains the principal component vectors (loadings).
+
+end
+
+
+
+
+
+
+
+
+function [pcaCOMPaRE] = comparePCAS(move1 , move2)
+
+
+% Perform Procrustes Analysis
+[pcaCOMPaRE, ~, ~] = procrustes(move1.loading, move2.loading);
+
+
+end
+

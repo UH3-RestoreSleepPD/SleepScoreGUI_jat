@@ -8,3 +8,8 @@ rLC = 'C:\Users\Admin\Documents\Github\SleepScoreGUI_jat\RCpS_Accel_OOBed\Thomps
 blockTrialExtract_as(rLC,2,0,1)
 
 %%
+
+close all
+rLC2 = 'C:\Users\Admin\Documents\Github\SleepScoreGUI_jat\RCpS_Accel_OOBed\Platt_0622';
+
+blockTrialExtract_as(rLC2,2,0,1)
