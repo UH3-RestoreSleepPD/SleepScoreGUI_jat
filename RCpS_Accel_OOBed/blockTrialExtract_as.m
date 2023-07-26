@@ -1,4 +1,4 @@
-function [] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign)
+function [] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign , UinTable)
 
 
 arguments
@@ -7,6 +7,7 @@ arguments
     movIDp      (1,:) double   = NaN;
     plotCheckfl (1,:) logical  = 0
     runAlign    (1,:) logical  = 0
+    UinTable    (:,:) table    = Nan;
 
 end
 
@@ -49,7 +50,11 @@ tempNAN = ~isnan(GeneratedData.Accel_XSamples);
 allTime2 = allTime(tempNAN);
 
 % Calculate indicies for time offsets for trials/blocks
-useTimeTab = createTABtimes(Acctable , Timezonechange , allTime2);
+if isnan(UinTable{1,1})
+    useTimeTab = createTABtimes(Acctable , Timezonechange , allTime2);
+else
+    useTimeTab = UinTable;
+end
 
 % Loop through and create cell array of raw data 3D array
 [outRaw] = extractRAWdata(useTimeTab , GeneratedData);
@@ -301,58 +306,58 @@ move1and5 = [1,5];
 tableMat = zeros(2,3);
 for m15 = 1:2
 
-    meanLine = mean(cell2mat(allblocks(:,move1and5(m15))));
-    noMeanLine = meanLine(~isnan(meanLine));
-    rmsThresh = (rms(noMeanLine)*0.1) + rms(noMeanLine);
+    % meanLine = mean(cell2mat(allblocks(:,move1and5(m15))));
+    % noMeanLine = meanLine(~isnan(meanLine));
+    % rmsThresh = (rms(noMeanLine)*0.1) + rms(noMeanLine);
+    % 
+    % startI = 1;
+    % stopI = 5;
+    % stePSize = 5;
+    % stePNum = floor(length(noMeanLine)/stePSize);
+    % stepIds = zeros(1,stePNum);
+    % allRMS = zeros(1,stePNum);
+    % for si = 1:stePNum
+    % 
+    %     tmpRMS = rms(noMeanLine(startI:stopI));
+    %     allRMS(si) = tmpRMS;
+    %     if tmpRMS > rmsThresh
+    %         stepIds(si) = 1;
+    %     end
+    % 
+    %     startI = startI + stePSize;
+    %     stopI = stopI + stePSize;
+    % 
+    % end
+    % 
+    % offsetThresh = diff(stepIds);
+    % numOffset = sum(numel(find(offsetThresh)));
+    % if numOffset > 5
+    %     firstStable = find(stepIds,1,'first') * stePSize;
+    %     lastStable = find(stepIds,1,'last') * stePSize;
+    %     % plot(noMeanLine(firstStable:lastStable))
+    % 
+    %     tableMat(m15,1) = firstStable;
+    %     tableMat(m15,2) = lastStable;
+    %     tableMat(m15,3) = length(firstStable:lastStable);
+    % 
+    % else
+    %     offsetLOCS = find(offsetThresh);
+    %     offSETfracs = offsetLOCS/stePNum;
+    %     if max(offSETfracs) < 0.2
+    %         firstStable = max(offsetLOCS) * stePSize;
+    %         lastStable = stePNum*stePSize;
+    %         % plot(noMeanLine(firstStable:end));
+    %     else
+    %         firstStable = 1;
+    %         lastStable = min(offsetLOCS) * stePSize;
+    %         % plot(noMeanLine(1:lastStable))
+    %     end
 
-    startI = 1;
-    stopI = 5;
-    stePSize = 5;
-    stePNum = floor(length(noMeanLine)/stePSize);
-    stepIds = zeros(1,stePNum);
-    allRMS = zeros(1,stePNum);
-    for si = 1:stePNum
+        tableMat(m15,1) = 10;%firstStable;
+        tableMat(m15,2) = inInfoTab.StopTIndraw(m15) - inInfoTab.StartIndraw(m15) - 10;
+        tableMat(m15,3) = length(tableMat(m15,1):tableMat(m15,2));
 
-        tmpRMS = rms(noMeanLine(startI:stopI));
-        allRMS(si) = tmpRMS;
-        if tmpRMS > rmsThresh
-            stepIds(si) = 1;
-        end
-
-        startI = startI + stePSize;
-        stopI = stopI + stePSize;
-
-    end
-
-    offsetThresh = diff(stepIds);
-    numOffset = sum(numel(find(offsetThresh)));
-    if numOffset > 5
-        firstStable = find(stepIds,1,'first') * stePSize;
-        lastStable = find(stepIds,1,'last') * stePSize;
-        % plot(noMeanLine(firstStable:lastStable))
-
-        tableMat(m15,1) = firstStable;
-        tableMat(m15,2) = lastStable;
-        tableMat(m15,3) = length(firstStable:lastStable);
-
-    else
-        offsetLOCS = find(offsetThresh);
-        offSETfracs = offsetLOCS/stePNum;
-        if max(offSETfracs) < 0.2
-            firstStable = max(offsetLOCS) * stePSize;
-            lastStable = stePNum*stePSize;
-            % plot(noMeanLine(firstStable:end));
-        else
-            firstStable = 1;
-            lastStable = min(offsetLOCS) * stePSize;
-            % plot(noMeanLine(1:lastStable))
-        end
-
-        tableMat(m15,1) = firstStable;
-        tableMat(m15,2) = lastStable;
-        tableMat(m15,3) = length(firstStable:lastStable);
-
-    end
+    % end
 
 end
 
@@ -364,7 +369,7 @@ bothBlocks = cell(3,2);
 for bii = 1:2
     tmpBlock = allblocks(:,move1and5(bii));
     startINDi = m15Infotab.startIND(bii);
-    stopINDi = startINDi + minLENGTH;
+    stopINDi = startINDi + minLENGTH - 1;
     tmpBlockt = cellfun(@(x) x(startINDi:stopINDi) , tmpBlock, 'UniformOutput' , false);
     bothBlocks(:,bii) = tmpBlockt;
 end
