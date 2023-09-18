@@ -1,4 +1,4 @@
-function [] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign , UinTable)
+function [outMOVEpca] = blockTrialExtract_as(recDataLoc , movIDp , plotCheckfl , runAlign , UinTable)
 
 
 arguments
@@ -7,7 +7,7 @@ arguments
     movIDp      (1,:) double   = NaN;
     plotCheckfl (1,:) logical  = 0
     runAlign    (1,:) logical  = 0
-    UinTable    (:,:) table    = Nan;
+    UinTable    (:,:) table    = NaN;
 
 end
 
@@ -125,7 +125,15 @@ plot3(move4_pca.accelDataDBc(:,1),move4_pca.accelDataDBc(:,2),move4_pca.accelDat
 text(mean(move4_pca.accelDataDBc(:,1))+10,mean(move4_pca.accelDataDBc(:,2)),...
     mean(move4_pca.accelDataDBc(:,3)),'Walking','FontSize',20,'FontWeight','bold','Color','b')
 
+move1_pca.ID = 'baseline';
+move2_pca.ID = 'Sit2Stand';
+move3_pca.ID = 'LieDown2Sit';
+move4_pca.ID = 'Walking';
 
+outMOVEpca.move1 = move1_pca;
+outMOVEpca.move2 = move2_pca;
+outMOVEpca.move3 = move3_pca;
+outMOVEpca.move4 = move4_pca;
 
 
 end
