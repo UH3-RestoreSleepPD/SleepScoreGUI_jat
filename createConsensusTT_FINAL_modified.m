@@ -53,11 +53,15 @@ for fi = 1:3
 
         if ffi == 1
             fTT = TT;
-            fTT.FINALSCORE = [];
+            fTT.FINALSCORE = zeros(height(TT),1);
         end
 
         % Clean up TT
-        emLOC = cellfun(@(x) isempty(x), TT.FINALSCORE, 'UniformOutput',true);
+        if matches('FINALSCORE',TT.Properties.VariableNames)
+            emLOC = cellfun(@(x) isempty(x), TT.FINALSCORE, 'UniformOutput',true);
+        else
+            emLOC = 0;
+        end
 
         if any(emLOC)
             fixX = 1;

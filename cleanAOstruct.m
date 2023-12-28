@@ -1,8 +1,8 @@
 %% Load
-cd('C:\Users\John\Downloads\UNMC_1_N3\oldmat')
+cd('D:\VRAWLFP\LFP\UNMC_26\Night 3')
 
-raw = 'C:\Users\John\Downloads\UNMC_1_N3\oldmat';
-new = 'C:\Users\John\Downloads\UNMC_1_N3\newmat';
+raw = 'D:\VRAWLFP\LFP\UNMC_26\Night 3';
+new = 'D:\VRAWLFP\LFP\UNMC_26\Night 3\newmat';
 
 mdir = dir('*.mat');
 mdir2 = {mdir.name};

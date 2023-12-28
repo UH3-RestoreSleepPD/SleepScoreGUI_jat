@@ -27,16 +27,17 @@ dir3 = getFList(2);
 finTTlist = getFList(1);
 for fi = 1:length(finTTlist)
 
-    fElems = split(finTTlist{fi},{'_','(',')'});
+    fElems = split(finTTlist{fi},{'_','(',')','.'});
 
     subID = replace(fElems{1},' ','');
     instit = replace(fElems{2},' ','');
+    nightTT = str2double(fElems{3});
 
     % Load
     load(finTTlist{fi},'TT')
 
     % Rename
-    switch fi
+    switch nightTT
         case 1
             TT1 = TT;
         case 2
@@ -99,14 +100,26 @@ cd(saveLOC)
 for sti = 1:3
     switch sti
         case 1
-            TT = TT1;
-            saveN = [subID,'_',instit,'_1.mat'];
+            if exist("TT1","var")
+                TT = TT1;
+                saveN = [subID,'_',instit,'_1.mat'];
+            else
+                continue
+            end
         case 2
-            TT = TT2;
-            saveN = [subID,'_',instit,'_2.mat'];
+            if exist("TT2","var")
+                TT = TT2;
+                saveN = [subID,'_',instit,'_2.mat'];
+            else
+                continue
+            end
         case 3
-            TT = TT3;
-            saveN = [subID,'_',instit,'_3.mat'];
+            if exist("TT3","var")
+                TT = TT3;
+                saveN = [subID,'_',instit,'_3.mat'];
+            else
+                continue
+            end
     end
     save(saveN,"TT");
 end
