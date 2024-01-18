@@ -23,8 +23,8 @@
 % download individual folders from Box
 % loadF = 'J:\01_Coding_Datasets\SLEEP_Score_Consensus\3_UNMC_FinalCon\Final'
 % saveF = 'J:\01_Coding_Datasets\SLEEP_Score_Consensus\3_UNMC_FinalCon\FinalCC'
-folderLOC = 'C:\Users\Admin\Downloads\LOad_UNMC_21';
-saveLOC = 'C:\Users\Admin\Downloads\SAve_UNMC_21';
+folderLOC = 'D:\VRAWLFP\LFP\UNMC_26\Night 2\newmat';
+saveLOC = 'D:\VRAWLFP\LFP\UNMC_26';
 createConsensusTTFirst_newFormat(folderLOC , saveLOC)
 
 
