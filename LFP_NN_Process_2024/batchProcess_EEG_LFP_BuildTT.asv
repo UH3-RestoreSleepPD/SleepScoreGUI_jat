@@ -677,9 +677,11 @@ switch signAl
             addTval = INPUTS.recSTART;
         end
 
-        % actimeVec = transpose(0:seconds(30):seconds((height(TT)-1)*30)) + addTval;
+        actimeVec = transpose(0:seconds(30):seconds((height(TT)-1)*30)) + addTval;
 
-        actimeVec = transpose(0:seconds(30):seconds((height(LFPTTRaw)-1)*30)) + addTval;
+
+
+        actimeVec = transpose(0:seconds(30):seconds((height(LFPTTRaw)-1)*30)) + INPUTS.recSTART;
         LFPTTRaw.ActTime = actimeVec;
 
         % SAVE data

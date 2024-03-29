@@ -4,7 +4,16 @@ getLISTii = {getLISTi.name};
 getLISTiii = getLISTii(~ismember(getLISTii,{'.','..'}));
 
 % 1 and 2 are done
-for gi = 8:10
+for gi = 1:20
     tmpName = getLISTiii{gi};
-    batchProcess_EEG_LFP_BuildTT(tmpName,'psg')
+    disp(tmpName)
+
+
+    
+    if matches(tmpName,{'UNMC_1','UNMC_26'})
+        batchProcess_EEG_LFP_BuildTT(tmpName,'lfpNF')
+    else
+        continue
+
+    end
 end
